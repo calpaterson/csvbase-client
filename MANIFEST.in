@@ -1,0 +1,2 @@
+include csvbasec/VERSION
+global-exclude *.pyc

@@ -12,13 +12,12 @@ def get_version() -> str:
 @click.group("csvbasec")
 @click.version_option(version=get_version())
 def cli():
-    """A cli client for csvbase(.com)."""
+    """A cli client for csvbase."""
     # FIXME: guard this under --verbose
     import sys
     from logging import DEBUG, basicConfig
 
     basicConfig(level=DEBUG, stream=sys.stderr)
-    ...
 
 
 @cli.group(help="Read and write from tables.")

@@ -1,6 +1,8 @@
+import pathlib
+
 from setuptools import setup, find_packages
 
-VERSION = open("csvbasec/VERSION").read().strip()
+VERSION = (pathlib.Path(__file__).parent / "csvbasec" / "VERSION").open().read().strip()
 
 # The tests test the blog, so it must be installed
 test_reqs = [
@@ -22,7 +24,6 @@ setup(
     version=VERSION,
     packages=find_packages(exclude=["tests.*", "tests"]),
     include_package_data=True,
-    zip_safe=True,
     install_requires=[
         "click",
         "platformdirs",
