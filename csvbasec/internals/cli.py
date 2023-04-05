@@ -1,8 +1,8 @@
 from pathlib import Path
 
 import click
-import requests
 
+from .cache import TableCache
 
 def get_version() -> str:
     return (Path(__file__).resolve().parent.parent / "VERSION").open().read()
@@ -12,6 +12,10 @@ def get_version() -> str:
 @click.version_option(version=get_version())
 def cli():
     """A cli client for csvbase(.com)."""
+    # FIXME: guard this under --verbose
+    from logging import basicConfig, DEBUG
+    import sys
+    basicConfig(level=DEBUG, stream=sys.stderr)
     ...
 
 
@@ -23,10 +27,9 @@ def table():
 @table.command(help="Get a table.")
 @click.argument("ref")
 def get(ref: str):
-    url = f"https://csvbase.com/{ref}"
-    response = requests.get(url, headers={"Accept": "text/csv"})
-    response.raise_for_status()
-    click.echo(response.text, nl=False)
+    table_cache = TableCache()
+    table = table_cache.get_table(ref)
+    click.echo(table, nl=False)
 
 
 # NOTE: This is for convenience only, the cli is actually called by setup.py

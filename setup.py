@@ -14,6 +14,7 @@ test_reqs = [
     "pytest==7.1.1",
     "types-setuptools==65.1.0",
     "types-toml==0.10.8.5",
+    "types-requests",
 ]
 
 setup(
@@ -23,13 +24,11 @@ setup(
     include_package_data=True,
     zip_safe=True,
     install_requires=[
-        "cchardet",
         "click",
-        # "pyarrow==10.0.1",
-        # "systemd-python==234",
+        "platformdirs",
+        "requests",
         "toml",
         "typing-extensions",
-        "requests",
     ],
     extras_require={"tests": test_reqs},
     entry_points={
