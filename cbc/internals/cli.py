@@ -1,4 +1,6 @@
 from pathlib import Path
+import sys
+from logging import DEBUG, basicConfig
 
 import click
 
@@ -9,15 +11,18 @@ def get_version() -> str:
     return (Path(__file__).resolve().parent.parent / "VERSION").open().read()
 
 
+def verbose_logging() -> None:
+    basicConfig(level=DEBUG, stream=sys.stderr, format="%(message)s")
+
+
 @click.group("cbc")
 @click.version_option(version=get_version())
-def cli():
+@click.option("--verbose", is_flag=True)
+def cli(verbose: bool):
     """A cli client for csvbase."""
     # FIXME: guard this under --verbose
-    import sys
-    from logging import DEBUG, basicConfig
-
-    basicConfig(level=DEBUG, stream=sys.stderr)
+    if verbose:
+        verbose_logging()
 
 
 @cli.group(help="Read and write from tables.")

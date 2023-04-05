@@ -29,7 +29,6 @@ setup(
         "platformdirs",
         "requests",
         "toml",
-        "typing-extensions",
     ],
     extras_require={"tests": test_reqs},
     entry_points={
