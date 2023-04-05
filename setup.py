@@ -6,17 +6,14 @@ VERSION = (pathlib.Path(__file__).parent / "cbc" / "VERSION").open().read().stri
 
 # The tests test the blog, so it must be installed
 test_reqs = [
-    "bandit==1.7.4",
-    "black==22.3.0",
-    "bpython~=0.22.1",
-    "feedparser==6.0.2",
-    "mypy==0.982",
-    "openpyxl==3.1.2",
-    "pandas==1.3.5",
-    "pytest==7.1.1",
-    "types-setuptools==65.1.0",
-    "types-toml==0.10.8.5",
+    "black",
+    "bpython",
+    "mypy",
+    "pytest",
+    "ruff",
     "types-requests",
+    "types-setuptools",
+    "types-toml",
 ]
 
 setup(
@@ -27,6 +24,7 @@ setup(
     install_requires=[
         "click",
         "platformdirs",
+        "pyappcache",
         "requests",
         "toml",
     ],
