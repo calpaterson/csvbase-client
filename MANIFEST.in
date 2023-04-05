@@ -1,2 +1,2 @@
-include csvbasec/VERSION
+include cbc/VERSION
 global-exclude *.pyc

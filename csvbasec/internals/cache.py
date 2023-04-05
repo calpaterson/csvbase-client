@@ -57,7 +57,7 @@ class TableCache:
         self._lru_cache = SqliteCache(max_size=100, connection=self._sqlite_conn)
         self._http_client = requests.Session()
         version = "0.0.1"  # FIXME:
-        self._http_client.headers.update({"User-Agent": f"csvbasec/{version}"})
+        self._http_client.headers.update({"User-Agent": f"cbc/{version}"})
 
     def get_table(self, ref: str) -> str:
         headers = {"Accept": "text/csv"}

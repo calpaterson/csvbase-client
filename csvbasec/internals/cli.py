@@ -9,7 +9,7 @@ def get_version() -> str:
     return (Path(__file__).resolve().parent.parent / "VERSION").open().read()
 
 
-@click.group("csvbasec")
+@click.group("cbc")
 @click.version_option(version=get_version())
 def cli():
     """A cli client for csvbase."""

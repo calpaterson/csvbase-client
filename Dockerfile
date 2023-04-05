@@ -6,7 +6,7 @@ COPY ./ ./
 RUN python -m build .
 
 FROM python:3.11-slim-buster
-COPY csvbasec/VERSION .version
+COPY cbc/VERSION .version
 COPY --from=builder dist/*.whl .
 RUN python -m pip --no-cache-dir install *.whl
-ENTRYPOINT ["csvbasec"]
+ENTRYPOINT ["cbc"]
