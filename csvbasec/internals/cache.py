@@ -1,12 +1,12 @@
-from typing import IO, Optional, List
-from pathlib import Path
 import sqlite3
 from contextlib import closing
 from logging import getLogger
+from pathlib import Path
+from typing import List, Optional
 
 import requests
-from pyappcache.sqlite_lru import SqliteCache
 from pyappcache.keys import BaseKey, Key
+from pyappcache.sqlite_lru import SqliteCache
 
 from .dirs import dirs
 
@@ -36,6 +36,7 @@ INSERT
         VALUES (?, ?);
 """
 
+
 class ETagKey(BaseKey):
     def __init__(self, ref):
         self.ref = ref
@@ -46,6 +47,7 @@ class ETagKey(BaseKey):
 
 class TableCache:
     """A read-through cache of tables."""
+
     def __init__(self) -> None:
         cache_db_path = Path(dirs.user_cache_dir) / "cache.db"
         logger.info("cache db path = %s", cache_db_path)
@@ -54,10 +56,8 @@ class TableCache:
         self._create_etags_table()
         self._lru_cache = SqliteCache(max_size=100, connection=self._sqlite_conn)
         self._http_client = requests.Session()
-        version = "0.0.1" # FIXME:
-        self._http_client.headers.update({
-            "User-Agent": f"csvbasec/{version}"
-        })
+        version = "0.0.1"  # FIXME:
+        self._http_client.headers.update({"User-Agent": f"csvbasec/{version}"})
 
     def get_table(self, ref: str) -> str:
         headers = {"Accept": "text/csv"}
@@ -104,11 +104,11 @@ class TableCache:
             return None
 
     def _set_etag(self, ref: str, etag: str) -> None:
-        with closing(self._sqlite_conn.cursor())  as cursor:
+        with closing(self._sqlite_conn.cursor()) as cursor:
             cursor.execute(SET_ETAG_DML, (ref, etag))
             self._sqlite_conn.commit()
 
     def _create_etags_table(self):
-        with closing(self._sqlite_conn.cursor())  as cursor:
+        with closing(self._sqlite_conn.cursor()) as cursor:
             cursor.execute(ETAGS_DDL)
             self._sqlite_conn.commit()

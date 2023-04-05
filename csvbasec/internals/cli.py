@@ -4,6 +4,7 @@ import click
 
 from .cache import TableCache
 
+
 def get_version() -> str:
     return (Path(__file__).resolve().parent.parent / "VERSION").open().read()
 
@@ -13,8 +14,9 @@ def get_version() -> str:
 def cli():
     """A cli client for csvbase(.com)."""
     # FIXME: guard this under --verbose
-    from logging import basicConfig, DEBUG
     import sys
+    from logging import DEBUG, basicConfig
+
     basicConfig(level=DEBUG, stream=sys.stderr)
     ...
 
