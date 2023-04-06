@@ -1,3 +1,5 @@
+import shutil
+import io
 from pathlib import Path
 import sys
 from logging import DEBUG, basicConfig
@@ -32,10 +34,17 @@ def table():
 
 @table.command(help="Get a table.")
 @click.argument("ref")
-def get(ref: str):
+@click.option(
+    "--force-cache-miss",
+    is_flag=True,
+    default=False,
+    help="Always download the table again, even if it hasn't changed",
+)
+def get(ref: str, force_cache_miss: bool):
     table_cache = TableCache()
-    table = table_cache.get_table(ref)
-    click.echo(table, nl=False)
+    table_buf = table_cache.get_table(ref, force_miss=force_cache_miss)
+    text_buf = io.TextIOWrapper(table_buf, encoding="utf-8")
+    shutil.copyfileobj(text_buf, sys.stdout)
 
 
 # NOTE: This is for convenience only, the cli is actually called by setup.py

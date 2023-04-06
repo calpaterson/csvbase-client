@@ -1,12 +1,15 @@
 import sqlite3
+import shutil
 from contextlib import closing
 from logging import getLogger
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, IO, Any
+from io import BytesIO
 
 import requests
 from pyappcache.keys import BaseKey, Key
 from pyappcache.sqlite_lru import SqliteCache
+from pyappcache.serialisation import Serialiser
 
 from .dirs import dirs
 
@@ -44,6 +47,10 @@ class ETagKey(BaseKey):
     def cache_key_segments(self) -> List[str]:
         return [self.ref]  # FIXME: correct this in the docs
 
+    def should_compress(self, python_obj, as_bytes) -> bool:
+        # csv files are highly compressible
+        return True
+
 
 class TableCache:
     """A read-through cache of tables."""
@@ -59,22 +66,24 @@ class TableCache:
         version = "0.0.1"  # FIXME:
         self._http_client.headers.update({"User-Agent": f"cbc/{version}"})
 
-    def get_table(self, ref: str) -> str:
+    def get_table(self, ref: str, force_miss: bool = False) -> IO[bytes]:
         headers = {"Accept": "text/csv"}
         etag = self._get_etag(ref)
         if etag is not None:
             logger.debug("etag found: %s", etag)
-            key: Key[str] = ETagKey(etag)
+            key: Key[IO[bytes]] = ETagKey(etag)
             table = self._lru_cache.get(key)
             if table is not None:
                 logger.debug("cache HIT: %s", ref)
-                headers["If-None-Match"] = etag
+                if force_miss:
+                    logger.info("cache HIT but forcing MISS")
+                else:
+                    headers["If-None-Match"] = etag
             else:
                 logger.debug("etag known but cache MISS: %s", ref)
 
         response = self._http_client.get(
-            self._build_url_for_table_ref(ref),
-            headers=headers,
+            self._build_url_for_table_ref(ref), headers=headers, stream=True
         )
 
         # FIXME: handle these errors
@@ -82,14 +91,20 @@ class TableCache:
 
         if response.status_code == 304:
             logger.debug("server says cache still valid")
-            return table
+            # typechecker thinks this is still optional but it can't be if we
+            # got here
+            return table  # type: ignore
         else:
             received_etag = response.headers["ETag"]
-            received_etag_key: Key[str] = ETagKey(received_etag)
-            table = response.text
+            received_etag_key = ETagKey(received_etag)
             self._set_etag(ref, received_etag)
-            self._lru_cache.set(received_etag_key, response.text)
-            return table
+            buf: BytesIO = BytesIO()
+            shutil.copyfileobj(response.raw, buf)
+            response.close()
+            buf.seek(0)
+            self._lru_cache.set(received_etag_key, buf)
+            buf.seek(0)
+            return buf
 
     def _build_url_for_table_ref(self, ref: str) -> str:
         return f"https://csvbase.com/{ref}"
@@ -112,3 +127,11 @@ class TableCache:
         with closing(self._sqlite_conn.cursor()) as cursor:
             cursor.execute(ETAGS_DDL)
             self._sqlite_conn.commit()
+
+
+class StreamSerialiser(Serialiser):
+    def dump(self, obj: Any) -> IO[bytes]:
+        return obj
+
+    def load(self, data: IO[bytes]) -> Any:
+        return data
