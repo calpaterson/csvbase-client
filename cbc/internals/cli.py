@@ -8,6 +8,7 @@ import toml
 import click
 
 from .cache import TableCache
+from .config import get_config, write_config, config_path
 
 
 def get_version() -> str:
@@ -31,6 +32,33 @@ def cli(verbose: bool):
 @cli.group(help="Read and write from tables.")
 def tables():
     ...
+
+
+@cli.command()
+def login():
+    """Write API credentials to config file, creating it if necessary."""
+    config = get_config()
+    username = click.prompt(
+        "Please enter your username", default=config.username, show_default=True
+    )
+    api_key = click.prompt("Please enter your API key", hide_input=True)
+    config.username = username
+    config.api_key = api_key
+
+    table_cache = TableCache()
+    are_valid = table_cache.check_creds(config)
+    if are_valid:
+        write_config(config)
+        click.echo(f"Wrote {config_path()}")
+    else:
+        click.echo(
+            click.style(
+                "ERROR: Username or API key rejected by server - double check"
+                " they're both correct!",
+                fg="red",
+            )
+        )
+        exit(1)
 
 
 @tables.command(help="Get a table.")

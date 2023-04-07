@@ -7,10 +7,12 @@ from typing import List, Optional, IO, Any, Dict
 from io import BytesIO
 
 import requests
+from requests.auth import HTTPBasicAuth
 from pyappcache.keys import BaseKey, Key
 from pyappcache.sqlite_lru import SqliteCache
 from pyappcache.serialisation import Serialiser
 
+from .config import Config
 from .dirs import dirs
 
 logger = getLogger(__name__)
@@ -65,6 +67,22 @@ class TableCache:
         self._http_client = requests.Session()
         version = "0.0.1"  # FIXME:
         self._http_client.headers.update({"User-Agent": f"cbc/{version}"})
+
+    def check_creds(self, config: Config) -> bool:
+        if config.username is None or config.api_key is None:
+            return False
+        response = self._http_client.get(
+            f"https://csvbase.com/{config.username}",
+            auth=HTTPBasicAuth(config.username, config.api_key),
+        )
+        if 400 <= response.status_code < 500:
+            return False
+        elif 200 <= response.status_code < 300:
+            return True
+        else:
+            response.raise_for_status()
+            # this (should be) unreachable but typechecker doesn't know that
+            return False
 
     def get_table(self, ref: str, force_miss: bool = False) -> IO[bytes]:
         headers = {"Accept": "text/csv"}
