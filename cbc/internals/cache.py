@@ -3,7 +3,7 @@ import shutil
 from contextlib import closing
 from logging import getLogger
 from pathlib import Path
-from typing import List, Optional, IO, Any
+from typing import List, Optional, IO, Any, Dict
 from io import BytesIO
 
 import requests
@@ -105,6 +105,16 @@ class TableCache:
             self._lru_cache.set(received_etag_key, buf)
             buf.seek(0)
             return buf
+
+    def metadata(self, ref: str) -> Dict[str, Any]:
+        headers = {"Accept": "application/json"}
+        response = self._http_client.get(
+            self._build_url_for_table_ref(ref), headers=headers)
+
+        response.raise_for_status()
+        rv = {"etag": response.headers["ETag"]}
+        rv.update(response.json())
+        return rv
 
     def _build_url_for_table_ref(self, ref: str) -> str:
         return f"https://csvbase.com/{ref}"
