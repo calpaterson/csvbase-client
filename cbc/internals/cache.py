@@ -109,7 +109,8 @@ class TableCache:
     def metadata(self, ref: str) -> Dict[str, Any]:
         headers = {"Accept": "application/json"}
         response = self._http_client.get(
-            self._build_url_for_table_ref(ref), headers=headers)
+            self._build_url_for_table_ref(ref), headers=headers
+        )
 
         response.raise_for_status()
         rv = {"etag": response.headers["ETag"]}
