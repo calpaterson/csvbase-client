@@ -21,7 +21,7 @@ HTTP_TIMEOUTS = (1, 30)
 
 ETAGS_DDL = """
 CREATE TABLE IF NOT EXISTS etags (
-    ref text PRIMARY KEY,
+    url text PRIMARY KEY,
     etag text NOT NULL
 );
 """
@@ -32,12 +32,12 @@ SELECT
 FROM
     etags
 WHERE
-    ref = ?
+    url = ?
 """
 
 SET_ETAG_DML = """
 INSERT
-    OR REPLACE INTO etags (ref, etag)
+    OR REPLACE INTO etags (url, etag)
         VALUES (?, ?);
 """
 
@@ -86,7 +86,9 @@ class TableCache:
 
     def get_table(self, ref: str, force_miss: bool = False) -> IO[bytes]:
         headers = {"Accept": "text/csv"}
-        etag = self._get_etag(ref)
+        url = self._build_url_for_table_ref(ref)
+
+        etag = self._get_etag(url)
         if etag is not None:
             logger.debug("etag found: %s", etag)
             key: Key[IO[bytes]] = ETagKey(etag)
@@ -101,7 +103,7 @@ class TableCache:
                 logger.debug("etag known but cache MISS: %s", ref)
 
         response = self._http_client.get(
-            self._build_url_for_table_ref(ref), headers=headers, stream=True
+            url, headers=headers, stream=True
         )
 
         # FIXME: handle these errors
@@ -115,7 +117,7 @@ class TableCache:
         else:
             received_etag = response.headers["ETag"]
             received_etag_key = ETagKey(received_etag)
-            self._set_etag(ref, received_etag)
+            self._set_etag(url, received_etag)
             buf: BytesIO = BytesIO()
             shutil.copyfileobj(response.raw, buf)
             response.close()
@@ -138,9 +140,11 @@ class TableCache:
     def _build_url_for_table_ref(self, ref: str) -> str:
         return f"https://csvbase.com/{ref}"
 
-    def _get_etag(self, ref: str) -> Optional[str]:
+    def _get_etag(self, url: str) -> Optional[str]:
+        # FIXME: This still isn't quite right as etags need to take account of
+        # Vary, but we aren't.
         with closing(self._sqlite_conn.cursor()) as cursor:
-            cursor.execute(GET_ETAG_DML, (ref,))
+            cursor.execute(GET_ETAG_DML, (url,))
             rs = cursor.fetchone()
         if rs is not None:
             return rs[0]
