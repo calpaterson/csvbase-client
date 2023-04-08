@@ -36,6 +36,13 @@ def tables():
 
 
 @cli.command()
+def config():
+    """Show the configuration file location, and the contents"""
+    exist_str = "" if config_path().exists() else " (does not exist)"
+    click.echo(f"config path: {config_path()}{exist_str}")
+
+
+@cli.command()
 def login():
     """Write API credentials to config file, creating it if necessary."""
     config = get_config()
