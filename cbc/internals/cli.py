@@ -3,6 +3,7 @@ import io
 from pathlib import Path
 import sys
 from logging import DEBUG, basicConfig
+from typing import IO
 
 import toml
 import click
@@ -91,6 +92,12 @@ def show(ref: str):
     }
 
     toml.dump(rv, sys.stdout)
+
+@tables.command(help="Upsert a table.")
+@click.argument("ref")
+@click.argument("file", type=click.File("rt"))
+def set(ref: str, file: IO[str]):
+    raise NotImplementedError()
 
 
 # NOTE: This is for convenience only, the cli is actually called by setup.py
