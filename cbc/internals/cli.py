@@ -78,7 +78,7 @@ def login():
     help="Always download the table again, even if it hasn't changed",
 )
 def get(ref: str, force_cache_miss: bool):
-    table_cache = TableCache()
+    table_cache = TableCache(get_config())
     table_buf = table_cache.get_table(ref, force_miss=force_cache_miss)
     text_buf = io.TextIOWrapper(table_buf, encoding="utf-8")
     shutil.copyfileobj(text_buf, sys.stdout)
@@ -87,7 +87,7 @@ def get(ref: str, force_cache_miss: bool):
 @tables.command(help="Show metadata about a table")
 @click.argument("ref")
 def show(ref: str):
-    table_cache = TableCache()
+    table_cache = TableCache(get_config())
     metadata = table_cache.metadata(ref)
     rv = {
         ref: {
@@ -102,9 +102,10 @@ def show(ref: str):
 
 @tables.command(help="Upsert a table.")
 @click.argument("ref")
-@click.argument("file", type=click.File("rt"))
+@click.argument("file", type=click.File("rb"))
 def set(ref: str, file: IO[str]):
-    raise NotImplementedError()
+    table_cache = TableCache(get_config())
+    table_cache.set_table(ref, file)
 
 
 # NOTE: This is for convenience only, the cli is actually called by setup.py

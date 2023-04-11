@@ -57,14 +57,17 @@ class ETagKey(BaseKey):
 class TableCache:
     """A read-through cache of tables."""
 
-    def __init__(self) -> None:
+    def __init__(self, config: Config) -> None:
         cache_db_path = Path(dirs.user_cache_dir) / "cache.db"
         logger.info("cache db path = %s", cache_db_path)
         cache_db_path.parent.mkdir(parents=True, exist_ok=True)
         self._sqlite_conn = sqlite3.connect(cache_db_path)
         self._create_etags_table()
         self._lru_cache = SqliteCache(max_size=100, connection=self._sqlite_conn)
+
         self._http_client = requests.Session()
+        if config.username is not None and config.api_key is not None:
+            self._http_client.auth = (config.username, config.api_key)
         version = "0.0.1"  # FIXME:
         self._http_client.headers.update({"User-Agent": f"cbc/{version}"})
 
@@ -136,6 +139,14 @@ class TableCache:
         rv = {"etag": response.headers["ETag"]}
         rv.update(response.json())
         return rv
+
+    def set_table(self, ref: str, file_obj: IO[str]) -> None:
+        headers = {"Content-Type": "text/csv"}
+        url = self._build_url_for_table_ref(ref)
+        response = self._http_client.put(
+            url, data=file_obj, headers=headers
+        )
+        response.raise_for_status()
 
     def _build_url_for_table_ref(self, ref: str) -> str:
         return f"https://csvbase.com/{ref}"
