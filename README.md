@@ -4,7 +4,7 @@ The command line client for csvbase.
 
 ## Installing
 
-cbc is pure python for ease of installing.
+cbc is pure Python in order to make it easy to install:
 
 ```python
 pip install cbc
