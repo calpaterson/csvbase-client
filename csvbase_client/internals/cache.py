@@ -69,7 +69,7 @@ class TableCache:
         if config.username is not None and config.api_key is not None:
             self._http_client.auth = (config.username, config.api_key)
         version = "0.0.1"  # FIXME:
-        self._http_client.headers.update({"User-Agent": f"cbc/{version}"})
+        self._http_client.headers.update({"User-Agent": f"csvbase-client/{version}"})
 
     def check_creds(self, config: Config) -> bool:
         if config.username is None or config.api_key is None:
@@ -149,7 +149,7 @@ class TableCache:
         response.raise_for_status()
 
     def _build_url_for_table_ref(self, ref: str) -> str:
-        return f"https://csvbase.com/{ref}"
+        return f"https://csvbase.com/{ref}.csv"
 
     def _get_etag(self, url: str) -> Optional[str]:
         # FIXME: This still isn't quite right as etags need to take account of

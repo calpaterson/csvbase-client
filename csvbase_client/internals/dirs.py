@@ -1,3 +1,3 @@
 from platformdirs import PlatformDirs
 
-dirs = PlatformDirs("cbc")
+dirs = PlatformDirs("csvbase-client")
