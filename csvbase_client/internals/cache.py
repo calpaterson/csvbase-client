@@ -13,7 +13,9 @@ from pyappcache.sqlite_lru import SqliteCache
 from pyappcache.serialisation import Serialiser
 
 from .config import Config
+from .http import get_http_sesh
 from .dirs import dirs
+from .value_objs import Auth
 
 logger = getLogger(__name__)
 
@@ -64,12 +66,7 @@ class TableCache:
         self._sqlite_conn = sqlite3.connect(cache_db_path)
         self._create_etags_table()
         self._lru_cache = SqliteCache(max_size=100, connection=self._sqlite_conn)
-
-        self._http_client = requests.Session()
-        if config.username is not None and config.api_key is not None:
-            self._http_client.auth = (config.username, config.api_key)
-        version = "0.0.1"  # FIXME:
-        self._http_client.headers.update({"User-Agent": f"csvbase-client/{version}"})
+        self._http_client = get_http_sesh()
 
     def check_creds(self, config: Config) -> bool:
         if config.username is None or config.api_key is None:
@@ -87,11 +84,12 @@ class TableCache:
             # this (should be) unreachable but typechecker doesn't know that
             return False
 
-    def get_table(self, ref: str, force_miss: bool = False) -> IO[bytes]:
+
+    def get_table(self, ref: str, auth: Optional[Auth] = None, force_miss: bool = False) -> IO[bytes]:
         headers = {"Accept": "text/csv"}
         url = self._build_url_for_table_ref(ref)
 
-        etag = self._get_etag(url)
+        etag = self._get_etag(ref)
         if etag is not None:
             logger.debug("etag found: %s", etag)
             key: Key[IO[bytes]] = ETagKey(etag)
@@ -109,8 +107,12 @@ class TableCache:
             url, headers=headers, stream=True
         )
 
-        # FIXME: handle these errors
-        response.raise_for_status()
+        if response.status_code >= 400:
+            logger.error(
+                "got status_code: %d, %s", response.status_code, response.content
+            )
+
+            response.raise_for_status()
 
         if response.status_code == 304:
             logger.debug("server says cache still valid")

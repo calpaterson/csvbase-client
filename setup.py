@@ -2,7 +2,9 @@ import pathlib
 
 from setuptools import setup, find_packages
 
-VERSION = (pathlib.Path(__file__).parent / "csvbase_client" / "VERSION").open().read().strip()
+VERSION = (
+    (pathlib.Path(__file__).parent / "csvbase_client" / "VERSION").open().read().strip()
+)
 
 # The tests test the blog, so it must be installed
 test_reqs = [
@@ -14,6 +16,8 @@ test_reqs = [
     "types-requests",
     "types-setuptools",
     "types-toml",
+    "pandas",
+    "pyarrow",
 ]
 
 setup(

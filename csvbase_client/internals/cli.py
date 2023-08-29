@@ -8,6 +8,7 @@ from typing import IO
 import toml
 import click
 
+from .auth import get_auth
 from .cache import TableCache
 from .config import get_config, write_config, config_path
 
@@ -20,12 +21,11 @@ def verbose_logging() -> None:
     basicConfig(level=DEBUG, stream=sys.stderr, format="%(message)s")
 
 
-@click.group("cbc")
+@click.group("csvbase-client")
 @click.version_option(version=get_version())
 @click.option("--verbose", is_flag=True, help="Enable more verbose output (to stderr).")
 def cli(verbose: bool):
     """A cli client for csvbase."""
-    # FIXME: guard this under --verbose
     if verbose:
         verbose_logging()
 
@@ -68,7 +68,6 @@ def login():
         )
         exit(1)
 
-
 @tables.command(help="Get a table.")
 @click.argument("ref")
 @click.option(
@@ -79,6 +78,7 @@ def login():
 )
 def get(ref: str, force_cache_miss: bool):
     table_cache = TableCache(get_config())
+    table = table_cache.get_table(ref, auth=get_auth())
     table_buf = table_cache.get_table(ref, force_miss=force_cache_miss)
     text_buf = io.TextIOWrapper(table_buf, encoding="utf-8")
     shutil.copyfileobj(text_buf, sys.stdout)
