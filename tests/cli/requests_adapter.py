@@ -26,7 +26,6 @@ class FlaskAdapter(BaseAdapter):
         cert,
         proxies,
     ) -> requests.Response:
-        assert not stream, "streaming not implemented"
         flask_response = self.test_client.open(
             path=request.path_url,
             method=request.method,

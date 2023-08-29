@@ -4,12 +4,13 @@ from pathlib import Path
 import sys
 from logging import DEBUG, basicConfig
 from typing import IO
+import csv
 
 import toml
 import click
 
 from .auth import get_auth
-from .cache import TableCache
+from .cache import TableCache, cache_path
 from .config import get_config, write_config, config_path
 
 
@@ -30,8 +31,8 @@ def cli(verbose: bool):
         verbose_logging()
 
 
-@cli.group(help="Read and write from tables.")
-def tables():
+@cli.group("table", help="Read and write from tables.")
+def table():
     ...
 
 
@@ -40,6 +41,48 @@ def config():
     """Show the configuration file location, and the contents"""
     exist_str = "" if config_path().exists() else " (does not exist)"
     click.echo(f"config path: {config_path()}{exist_str}")
+    exist_str = "" if cache_path().exists() else " (does not exist)"
+    click.echo(f"config path: {cache_path()}{exist_str}")
+
+
+@cli.group(help="Manage the local cache")
+def cache():
+    ...
+
+
+@cache.command("show", help="Show cache location and contents")
+@click.option(
+    "--full-urls",
+    default=False,
+    is_flag=True,
+    help="Show full urls (hint: some terminals make them clickable)",
+)
+def cache_show(full_urls: bool):
+    table_cache = TableCache(get_config())
+    tsv_writer = csv.writer(sys.stdout, dialect="excel-tab")
+    common_cols = ["last_modified", "content_type", "etag (prefix)"]
+    if full_urls:
+        header = ["url"]
+    else:
+        header = ["ref"]
+    header.extend(common_cols)
+    tsv_writer.writerow(header)
+
+    prefix_length = len(table_cache.base_url())
+    for url, etag, content_type, last_modified in table_cache.entries():
+        # FIXME: not quite a ref - includes file extension
+        if full_urls:
+            a = url
+        else:
+            a = url[prefix_length:]
+        etag_prefix = etag[3:13]
+        tsv_writer.writerow([a, last_modified, content_type.mimetype(), etag_prefix])
+
+
+@cache.command("clear", help="Wipe the cache")
+def clear():
+    table_cache = TableCache(get_config())
+    table_cache.clear()
 
 
 @cli.command()
@@ -68,7 +111,8 @@ def login():
         )
         exit(1)
 
-@tables.command(help="Get a table.")
+
+@table.command(help="Get a table.")
 @click.argument("ref")
 @click.option(
     "--force-cache-miss",
@@ -78,15 +122,14 @@ def login():
 )
 def get(ref: str, force_cache_miss: bool):
     table_cache = TableCache(get_config())
-    table = table_cache.get_table(ref, auth=get_auth())
-    table_buf = table_cache.get_table(ref, force_miss=force_cache_miss)
+    table_buf = table_cache.get_table(ref, force_miss=force_cache_miss, auth=get_auth())
     text_buf = io.TextIOWrapper(table_buf, encoding="utf-8")
     shutil.copyfileobj(text_buf, sys.stdout)
 
 
-@tables.command(help="Show metadata about a table")
+@table.command(help="Show metadata about a table")
 @click.argument("ref")
-def show(ref: str):
+def table_show(ref: str):
     table_cache = TableCache(get_config())
     metadata = table_cache.metadata(ref)
     rv = {
@@ -100,7 +143,8 @@ def show(ref: str):
 
     toml.dump(rv, sys.stdout)
 
-@tables.command(help="Upsert a table.")
+
+@table.command(help="Upsert a table.")
 @click.argument("ref")
 @click.argument("file", type=click.File("rb"))
 def set(ref: str, file: IO[str]):
