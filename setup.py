@@ -30,7 +30,6 @@ setup(
         "platformdirs",
         "pyappcache",
         "requests",
-        "toml",
     ],
     extras_require={"tests": test_reqs},
     entry_points={
