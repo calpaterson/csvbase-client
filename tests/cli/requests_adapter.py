@@ -1,3 +1,7 @@
+# Need to wait for a release of types-requests that includes this commit:
+# https://github.com/python/typeshed/commit/b69b17c3d8fd5b1f0cc8209b2f15e6b4b687a2ee
+# mypy: ignore-errors
+
 from base64 import b64encode
 from io import BytesIO
 

@@ -18,6 +18,8 @@ test_reqs = [
     "types-toml",
     "pandas",
     "pyarrow",
+    "types-passlib",
+    "pandas-stubs",
 ]
 
 setup(
