@@ -1,16 +1,13 @@
 import shutil
 import io
-from pathlib import Path
 import sys
 from logging import DEBUG, basicConfig, WARNING
 from typing import IO
 import csv
-import importlib.resources as imp_resources
 
 import toml
 import click
 
-import csvbase_client
 from .auth import get_auth
 from .cache import TableCache, cache_path
 from .config import get_config, write_config, config_path

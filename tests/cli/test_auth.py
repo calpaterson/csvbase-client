@@ -1,7 +1,6 @@
 import os
 from unittest.mock import patch
 
-import pytest
 
 from csvbase_client.internals.auth import get_auth
 
