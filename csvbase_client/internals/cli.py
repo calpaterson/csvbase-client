@@ -5,21 +5,16 @@ import sys
 from logging import DEBUG, basicConfig, WARNING
 from typing import IO
 import csv
+import importlib.resources as imp_resources
 
 import toml
 import click
 
+import csvbase_client
 from .auth import get_auth
 from .cache import TableCache, cache_path
 from .config import get_config, write_config, config_path
-
-
-def get_version() -> str:
-    return (Path(__file__).resolve().parent.parent / "VERSION").open().read()
-
-
-def verbose_logging() -> None:
-    basicConfig(level=DEBUG, stream=sys.stderr, format="%(message)s")
+from .version import get_version
 
 
 @click.group("csvbase-client")

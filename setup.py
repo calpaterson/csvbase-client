@@ -27,12 +27,14 @@ setup(
     version=VERSION,
     packages=find_packages(exclude=["tests.*", "tests"]),
     include_package_data=True,
+    package_data={"csvbase_client": ["VERSION"]},
     install_requires=[
         "click",
         "platformdirs",
         "pyappcache",
         "requests",
         "toml",
+        "importlib_resources; python_version<'3.9'"
     ],
     extras_require={"tests": test_reqs},
     entry_points={
