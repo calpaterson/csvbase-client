@@ -25,6 +25,9 @@ test_reqs = [
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
+# long agpl trove classifier that ruff doesn't like
+c = "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)"
+
 setup(
     name="csvbase-client",
     version=VERSION,
@@ -49,7 +52,7 @@ setup(
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
-        "License :: OSI Approved :: GNU Affero General Public License v3 (AGPL-3.0)",
+        c,
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
