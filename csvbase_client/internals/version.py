@@ -6,9 +6,9 @@ import csvbase_client
 def get_version() -> str:
     try:
         return get_softcoded_version()
-    # This is raised under Nuitka when trying to import
-    # importlib.resources.files
-    except AttributeError:
+    # These two are raised (under different scenarios) under Nuitka when trying
+    # to import importlib.resources.files
+    except (AttributeError, FileNotFoundError):
         return get_hardcoded_version()
 
 
