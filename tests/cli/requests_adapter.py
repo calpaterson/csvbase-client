@@ -34,7 +34,7 @@ class FlaskAdapter(BaseAdapter):
             path=request.path_url,
             method=request.method,
             headers=dict(request.headers),
-            data=request.body.getvalue() if request.body is not None else None,
+            data=request.body.read() if request.body is not None else None,
         )
         response = requests.Response()
         response.status_code = flask_response.status_code

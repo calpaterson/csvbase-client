@@ -52,8 +52,9 @@ def csvbase_test_client(csvbase_flask_app):
         yield test_client
 
 
-@pytest.fixture()
+@pytest.fixture(autouse=True)
 def http_sesh(csvbase_test_client):
+    """This fixture inserts out special requests->flask adapter."""
     sesh = requests.Session()
     sesh.mount("https://csvbase.com", FlaskAdapter(csvbase_test_client))
     with patch.object(http, "_get_http_sesh") as mock_get_sesh:

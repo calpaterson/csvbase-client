@@ -144,7 +144,7 @@ def table_show(ref: str):
 @click.argument("file", type=click.File("rb"))
 def set(ref: str, file: IO[str]):
     table_cache = TableCache(get_config())
-    table_cache.set_table(ref, file)
+    table_cache.set_table(ref, file, auth=get_auth())
 
 
 # NOTE: This is for convenience only, the cli is actually called by setup.py

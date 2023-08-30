@@ -169,8 +169,12 @@ class TableCache:
         rv.update(response.json())
         return rv
 
-    def set_table(self, ref: str, file_obj: IO[str]) -> None:
+    def set_table(
+        self, ref: str, file_obj: IO[str], auth: Optional[Auth] = None
+    ) -> None:
         headers = {"Content-Type": "text/csv"}
+        if auth is not None:
+            headers["Authorization"] = auth.as_basic_auth()
         url = self._build_url_for_table_ref(ref)
         response = self._http_client.put(url, data=file_obj, headers=headers)
         response.raise_for_status()
