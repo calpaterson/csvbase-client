@@ -18,7 +18,9 @@ def get_softcoded_version() -> str:
     This only works if we're in a valid package, with the valid package data.
 
     """
-    version_path = imp_resources.files(csvbase_client) / "VERSION"
+    # this isn't there in 3.8, which gets mypy confused (but we are using a
+    # backport)
+    version_path = imp_resources.files(csvbase_client) / "VERSION"  # type: ignore
     return version_path.open().read().strip()
 
 
