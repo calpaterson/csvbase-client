@@ -47,3 +47,16 @@ Download these from the github release page.
 ```bash
 pip install csvbase-client
 ```
+
+### Docker
+
+```bash
+docker pull calpaterson/csvbase-client
+```
+
+Then when you run:
+
+```bash
+# mount your own xdg-cache directory as a volume inside the container
+docker run -v "${XDG_CACHE_HOME:-$HOME/.cache}":/root/.cache calpaterson/csvbase-client
+```
