@@ -3,3 +3,7 @@ __pycache__
 .tox
 dist
 .venv
+*.build
+*.dist
+*.onefile-build
+.pypi-venv

@@ -11,3 +11,7 @@ tests
 .venv
 *.csv
 *.parquet
+*.build
+*.dist
+*.onefile-build
+.pypi-venv
