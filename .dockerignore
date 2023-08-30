@@ -1,0 +1,13 @@
+csvbase_client.egg-info
+dist
+.git
+.github
+.mypy_cache
+.pytest_cache
+.ruff_cache
+setup.build
+tests
+.tox
+.venv
+*.csv
+*.parquet
