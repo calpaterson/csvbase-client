@@ -44,7 +44,7 @@ setup(
         "pyappcache",
         "requests",
         "toml",
-        "importlib_resources; python_version<'3.9'"
+        "importlib_resources; python_version<'3.9'",
     ],
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -55,7 +55,7 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
-    "Topic :: Utilities",
+        "Topic :: Utilities",
     ],
     project_urls={
         "Bug Tracker": "https://github.com/calpaterson/csvbase-client/issues",
