@@ -2,7 +2,7 @@ import shutil
 import io
 from pathlib import Path
 import sys
-from logging import DEBUG, basicConfig
+from logging import DEBUG, basicConfig, WARNING
 from typing import IO
 import csv
 
@@ -28,7 +28,10 @@ def verbose_logging() -> None:
 def cli(verbose: bool):
     """A cli client for csvbase."""
     if verbose:
-        verbose_logging()
+        level = DEBUG
+    else:
+        level = WARNING
+    basicConfig(level=level, stream=sys.stderr, format="%(levelname)s: %(message)s")
 
 
 @cli.group("table", help="Read and write from tables.")
