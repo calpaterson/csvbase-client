@@ -64,6 +64,7 @@ setup(
         "Bug Tracker": "https://github.com/calpaterson/csvbase-client/issues",
         "Documentation": "https://github.com/calpaterson/csvbase-client/wiki",
         "Source Code": "https://github.com/calpaterson/csvbase-client",
+        "Changelog": "https://github.com/calpaterson/csvbase-client/blob/main/CHANGELOG.md",
     },
     extras_require={"tests": test_reqs},
     entry_points={
