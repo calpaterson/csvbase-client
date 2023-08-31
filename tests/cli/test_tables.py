@@ -39,3 +39,9 @@ def test_set__to_create(runner, test_user, tmpdir):
         )
 
         assert_frame_equal(df, actual_df)
+
+
+def test_show__happy(runner, test_user, test_table):
+    with mock_auth(test_user.username, test_user.hex_api_key()):
+        result = runner.invoke(cli, ["table", "show", test_table])
+    assert result.exit_code == 0, result.stderr_bytes

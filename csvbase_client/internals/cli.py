@@ -26,13 +26,13 @@ def cli(verbose: bool):
     basicConfig(level=level, stream=sys.stderr, format="%(levelname)s: %(message)s")
 
 
-@cli.group("table", help="Read and write from tables.")
+@cli.group("table", help="Interact with tables")
 def table():
     ...
 
 
 @cli.command()
-def config():
+def info():
     """Show the configuration file location, and the contents"""
     exist_str = "" if config_path().exists() else " (does not exist)"
     click.echo(f"config path: {config_path()}{exist_str}")
@@ -122,24 +122,23 @@ def get(ref: str, force_cache_miss: bool):
     shutil.copyfileobj(text_buf, sys.stdout)
 
 
-@table.command(help="Show metadata about a table")
+@table.command("show", help="Show metadata about a table")
 @click.argument("ref")
 def table_show(ref: str):
     table_cache = TableCache(get_config())
-    metadata = table_cache.metadata(ref)
+    metadata = table_cache.metadata(ref, auth=get_auth())
     rv = {
         ref: {
             "caption": metadata["caption"],
             "created": metadata["created"],
             "last_changed": metadata["last_changed"],
-            "etag": metadata["etag"],
         }
     }
 
-    toml.dump(rv, sys.stdout)
+    click.echo(toml.dumps(rv))
 
 
-@table.command(help="Upsert a table.")
+@table.command("set", help="Create or upsert a table.")
 @click.argument("ref")
 @click.argument("file", type=click.File("rb"))
 def set(ref: str, file: IO[str]):

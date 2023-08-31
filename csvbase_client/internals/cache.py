@@ -158,16 +158,18 @@ class TableCache:
             buf.seek(0)
             return buf
 
-    def metadata(self, ref: str) -> Dict[str, Any]:
+    def metadata(self, ref: str, auth: Optional[Auth] = None) -> Dict[str, Any]:
+        # FIXME: This should somehow use the caching layer, the stuff in
+        # get_table should be pulled out and made generic somehow
         headers = {"Accept": "application/json"}
+        if auth is not None:
+            headers["Authorization"] = auth.as_basic_auth()
         response = self._http_client.get(
             self._build_url_for_table_ref(ref), headers=headers
         )
 
         response.raise_for_status()
-        rv = {"etag": response.headers["ETag"]}
-        rv.update(response.json())
-        return rv
+        return response.json()
 
     def set_table(
         self, ref: str, file_obj: IO[str], auth: Optional[Auth] = None

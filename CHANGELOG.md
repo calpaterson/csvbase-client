@@ -10,6 +10,10 @@ be mentioned here.
 
 ## [Unreleased]
 
+### Added
+
+- `csvbase-client table show <table_ref>`
+
 ## [0.0.1] - 2023-08-30
 
 ### Added

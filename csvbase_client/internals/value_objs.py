@@ -18,6 +18,7 @@ class Auth:
 class ContentType(enum.Enum):
     PARQUET = 1
     CSV = 2
+    JSON = 3
 
     def mimetype(self):
         return MIMETYPE_MAP[self]
@@ -33,6 +34,7 @@ class ContentType(enum.Enum):
 MIMETYPE_MAP = {
     ContentType.PARQUET: "application/parquet",  # unofficial, but convenient
     ContentType.CSV: "text/csv",
+    ContentType.JSON: "application/json",
 }
 
 BACKWARD_MIMETYPE_MAP = {v: k for k, v in MIMETYPE_MAP.items()}
@@ -40,4 +42,5 @@ BACKWARD_MIMETYPE_MAP = {v: k for k, v in MIMETYPE_MAP.items()}
 FILE_EXTENSION_MAP = {
     ContentType.CSV: ".csv",
     ContentType.PARQUET: ".parquet",
+    ContentType.JSON: ".json",
 }
