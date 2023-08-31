@@ -10,6 +10,8 @@ The command line client for [csvbase](https://csvbase.com/).
 
 This tool is very early alpha and suitable for testing.
 
+Semantic versioning is followed, see the [changelog](CHANGELOG.md).
+
 ## Usage
 
 ### Get a table
@@ -40,7 +42,7 @@ Nothing is output upon success and exit code is 0.
 
 ### Executable
 
-Download these from the github release page.
+Download these from the github [release page](https://github.com/calpaterson/csvbase-client/releases/).
 
 ### Pip + PyPI
 
