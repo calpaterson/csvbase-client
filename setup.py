@@ -48,6 +48,7 @@ setup(
         "requests",
         "toml",
         "importlib_resources; python_version<'3.9'",
+        "fsspec",
     ],
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -70,6 +71,9 @@ setup(
     entry_points={
         "console_scripts": [
             "csvbase-client=csvbase_client.internals.cli:cli",
-        ]
+        ],
+        "fsspec.specs": [
+            "csvbase=csvbase_client.fsspec.CSVBaseFileSystem",
+        ],
     },
 )

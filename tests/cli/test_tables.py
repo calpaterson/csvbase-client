@@ -7,7 +7,7 @@ from pandas.testing import assert_frame_equal
 
 from csvbase_client.internals.cli import cli
 
-from .utils import mock_auth, random_string
+from ..utils import random_string, mock_auth
 
 
 def test_get__happy(runner, test_user, test_table):

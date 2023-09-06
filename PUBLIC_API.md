@@ -9,6 +9,7 @@
 - The contents of the `csvbase.internals` module
 - Textual output (ie: not csv or parquet) of cli commands like `csvbase-client
   table show`
+- Currently, the `csvbase.fsspec` module
 
 ## Otherwise
 
