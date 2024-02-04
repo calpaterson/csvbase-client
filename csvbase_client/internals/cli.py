@@ -27,8 +27,7 @@ def cli(verbose: bool):
 
 
 @cli.group("table", help="Interact with tables")
-def table():
-    ...
+def table(): ...
 
 
 @cli.command()
@@ -41,8 +40,7 @@ def info():
 
 
 @cli.group(help="Manage the local cache")
-def cache():
-    ...
+def cache(): ...
 
 
 @cache.command("show", help="Show cache location and contents")

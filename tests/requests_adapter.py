@@ -20,6 +20,7 @@ class FlaskAdapter(BaseAdapter):
 
     def __init__(self, test_client):
         self.test_client = test_client
+        self.request_response_pairs = []
 
     def send(
         self,
@@ -42,4 +43,5 @@ class FlaskAdapter(BaseAdapter):
         response.url = request.path_url
         response.reason = flask_response.status[4:]
         response.headers = flask_response.headers
+        self.request_response_pairs.append((request, response))
         return response
