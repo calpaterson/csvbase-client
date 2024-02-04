@@ -13,6 +13,7 @@ def test_open__happy(test_user, http_sesh):
     initial_df = pd.DataFrame({"string": ["Hello, {n}" for n in range(10)]})
 
     with mock_auth(test_user.username, test_user.hex_api_key()):
+        print(test_user)
         fs = fsspec.filesystem("csvbase")
 
         # upload a table
@@ -30,14 +31,14 @@ def test_open__happy(test_user, http_sesh):
     assert_frame_equal(expected_df, actual_df)
 
 
-@pytest.mark.xfail()
 def test_open__cache_hit(test_user, http_sesh, flask_adapter):
-    fs = fsspec.filesystem("csvbase")
-
     table_name = random_string(prefix="table-")
     initial_df = pd.DataFrame({"string": ["Hello, {n}" for n in range(10)]})
 
     with mock_auth(test_user.username, test_user.hex_api_key()):
+        print(test_user)
+        fs = fsspec.filesystem("csvbase")
+
         with fs.open(f"{test_user.username}/{table_name}", "w") as table_f:
             initial_df.to_csv(table_f, index=False)
 
@@ -52,5 +53,8 @@ def test_open__cache_hit(test_user, http_sesh, flask_adapter):
         "csvbase_row_id"
     )
 
+    # FIXME: this doesn't assert that the cache was used
     assert_frame_equal(expected_df, actual_df)
-    assert len(flask_adapter.request_response_pairs) == 2
+    third_req, third_resp = flask_adapter.request_response_pairs[2]
+    "Etag" in third_req.headers
+    third_resp.status_code == 304

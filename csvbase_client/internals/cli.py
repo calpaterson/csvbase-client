@@ -5,6 +5,7 @@ from logging import DEBUG, basicConfig, WARNING
 from typing import IO
 import csv
 
+import fsspec
 import toml
 import click
 
@@ -114,10 +115,9 @@ def login():
     help="Always download the table again, even if it hasn't changed",
 )
 def get(ref: str, force_cache_miss: bool):
-    table_cache = TableCache(get_config())
-    table_buf = table_cache.get_table(ref, force_miss=force_cache_miss, auth=get_auth())
-    text_buf = io.TextIOWrapper(table_buf, encoding="utf-8")
-    shutil.copyfileobj(text_buf, sys.stdout)
+    fs = fsspec.filesystem("csvbase")
+    table_buf = fs.open(ref, "r")
+    shutil.copyfileobj(table_buf, sys.stdout)
 
 
 @table.command("show", help="Show metadata about a table")
@@ -140,8 +140,9 @@ def table_show(ref: str):
 @click.argument("ref")
 @click.argument("file", type=click.File("rb"))
 def set(ref: str, file: IO[str]):
-    table_cache = TableCache(get_config())
-    table_cache.set_table(ref, file, auth=get_auth())
+    fs = fsspec.filesystem("csvbase")
+    with fs.open(ref, "wb") as table_buf:
+        shutil.copyfileobj(file, table_buf)
 
 
 # NOTE: This is for convenience only, the cli is actually called by setup.py

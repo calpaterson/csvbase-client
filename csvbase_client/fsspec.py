@@ -15,6 +15,7 @@ from .io import rewind
 from .internals.value_objs import Auth, ContentType
 from .internals.auth import get_auth
 from .internals.http import get_http_sesh
+from .internals.dirs import dirs
 
 logger = getLogger(__name__)
 
@@ -48,7 +49,7 @@ def get_rep(
         headers["Authorization"] = auth.as_basic_auth()
     url = url_for_rep(base_url, ref, content_type)
     etag = get_last_etag(cache, base_url, ref, content_type)
-    rep_key = RepKey(base_url, ref, content_type)
+    rep_key: Key[IO[bytes]] = RepKey(base_url, ref, content_type)
 
     if etag is not None:
         rep = cache.get(rep_key)
@@ -56,9 +57,12 @@ def get_rep(
             logger.debug("cache HIT: '%s'", ref)
             headers["If-None-Match"] = etag
         else:
-            logger.debug("cache MISS: '%s'", ref)
+            logger.debug("an etag is known but cache MISS: '%s'", ref)
+    else:
+        logger.debug("no etag known")
 
     response = http_sesh.get(url, headers=headers, stream=True)
+    logger.info("got response code: %d", response.status_code)
 
     if response.status_code >= 400:
         logger.error("got status_code: %d, %s", response.status_code, response.content)
@@ -66,7 +70,8 @@ def get_rep(
         response.raise_for_status()
 
     if response.status_code == 304:
-        return rep
+        # FIXME: a rejig is required here for type safety
+        return rep  # type: ignore
     else:
         etag = response.headers["ETag"]
         set_etag(cache, base_url, ref, content_type)
@@ -99,9 +104,9 @@ def send_rep(
 
 def get_last_etag(
     cache: FilesystemCache, base_url: str, ref: str, content_type: ContentType
-) -> str:
+) -> Optional[str]:
     # FIXME: junk impl
-    return ""
+    return None
 
 
 def set_etag(
@@ -120,10 +125,7 @@ class CSVBaseFileSystem(AbstractFileSystem):
         kwargs["use_listings_cache"] = False
         self._base_url = CSVBASE_DOT_COM
         self._http_sesh = get_http_sesh()
-
-        # FIXME: use xdg to determine cache location
-        self._cache = FilesystemCache(Path("~/.cache/csvbase-client"))
-        self._auth = get_auth()
+        self._cache = FilesystemCache(Path(dirs.user_cache_dir))
 
         super().__init__(*args, **kwargs)
 
@@ -170,7 +172,12 @@ class CSVBaseFileSystem(AbstractFileSystem):
 
     def _get_rep(self, ref: str, content_type: ContentType) -> IO[bytes]:
         return get_rep(
-            self._http_sesh, self._cache, self._base_url, ref, content_type, self._auth
+            self._http_sesh,
+            self._cache,
+            self._base_url,
+            ref,
+            content_type,
+            self._get_auth(),
         )
 
     def _send_rep(self, ref: str, content_type: ContentType, rep: IO[bytes]) -> None:
@@ -181,8 +188,13 @@ class CSVBaseFileSystem(AbstractFileSystem):
             ref,
             content_type,
             rep,
-            self._auth,
+            self._get_auth(),
         )
+
+    def _get_auth(self) -> Optional[Auth]:
+        # this can't be done on an instance level for testing reasons - fsspec
+        # appears to re-use instances
+        return get_auth()
 
 
 class CSVBaseFile(AbstractBufferedFile):
