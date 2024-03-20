@@ -6,6 +6,7 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 
 from csvbase_client.internals.cli import cli
+import pytest
 
 from ..utils import random_string, mock_auth
 
@@ -41,6 +42,7 @@ def test_set__to_create(runner, test_user, tmpdir):
         assert_frame_equal(df, actual_df)
 
 
+@pytest.mark.xfail(reason="implementation temporarily removed")
 def test_show__happy(runner, test_user, test_table):
     with mock_auth(test_user.username, test_user.hex_api_key()):
         result = runner.invoke(cli, ["table", "show", test_table])

@@ -12,28 +12,14 @@ from pyappcache.fs import FilesystemCache
 from fsspec.spec import AbstractFileSystem, AbstractBufferedFile
 
 from .io import rewind
+from .internals.cache import get_fs_cache, get_last_etag, set_etag, RepKey
 from .internals.value_objs import Auth, ContentType
 from .internals.auth import get_auth
 from .internals.http import get_http_sesh
 from .internals.dirs import dirs
+from .constants import CSVBASE_DOT_COM
 
 logger = getLogger(__name__)
-
-CSVBASE_DOT_COM = "https://csvbase.com"
-
-
-class RepKey(BaseKey):
-    def __init__(self, base_url: str, ref: str, content_type: ContentType):
-        self.base_url = base_url
-        self.ref = ref
-        self.content_type = content_type
-
-    def cache_key_segments(self) -> List[str]:
-        segs = []
-        if self.base_url != CSVBASE_DOT_COM:
-            segs.append(self.base_url)
-        segs.extend([self.ref, self.content_type.file_extension()])
-        return segs
 
 
 def get_rep(
@@ -74,7 +60,7 @@ def get_rep(
         return rep  # type: ignore
     else:
         etag = response.headers["ETag"]
-        set_etag(cache, base_url, ref, content_type)
+        set_etag(cache, base_url, ref, content_type, etag)
         rep = io.BytesIO()
         with rewind(rep):
             shutil.copyfileobj(response.raw, rep)
@@ -102,19 +88,6 @@ def send_rep(
     response.raise_for_status()
 
 
-def get_last_etag(
-    cache: FilesystemCache, base_url: str, ref: str, content_type: ContentType
-) -> Optional[str]:
-    # FIXME: junk impl
-    return None
-
-
-def set_etag(
-    cache: FilesystemCache, base_url: str, ref: str, content_type: ContentType
-) -> None:
-    pass
-
-
 def url_for_rep(base_url: str, ref: str, content_type: ContentType) -> str:
     url = urljoin(base_url, ref)
     return url
@@ -124,8 +97,7 @@ class CSVBaseFileSystem(AbstractFileSystem):
     def __init__(self, *args, **kwargs):
         kwargs["use_listings_cache"] = False
         self._base_url = CSVBASE_DOT_COM
-        self._http_sesh = get_http_sesh()
-        self._cache = FilesystemCache(Path(dirs.user_cache_dir))
+        self._cache = get_fs_cache()
 
         super().__init__(*args, **kwargs)
 
@@ -141,7 +113,8 @@ class CSVBaseFileSystem(AbstractFileSystem):
         cache_options=None,
         **kwargs
     ):
-        return CSVBaseFile(self, path, mode)
+        f = CSVBaseFile(self, path, mode)
+        return f
 
     def created(self, path):
         raise NotImplementedError
@@ -171,8 +144,9 @@ class CSVBaseFileSystem(AbstractFileSystem):
         }
 
     def _get_rep(self, ref: str, content_type: ContentType) -> IO[bytes]:
+        _http_sesh = get_http_sesh()
         return get_rep(
-            self._http_sesh,
+            _http_sesh,
             self._cache,
             self._base_url,
             ref,
@@ -181,8 +155,9 @@ class CSVBaseFileSystem(AbstractFileSystem):
         )
 
     def _send_rep(self, ref: str, content_type: ContentType, rep: IO[bytes]) -> None:
+        _http_sesh = get_http_sesh()
         send_rep(
-            self._http_sesh,
+            _http_sesh,
             self._cache,
             self._base_url,
             ref,
@@ -223,6 +198,7 @@ class CSVBaseFile(AbstractBufferedFile):
         pass
 
     def _upload_chunk(self, final=False) -> None:
+        # we send it all in one go at the moment
         if final:
             self.buffer.seek(0)
             self.fs._send_rep(self.path, ContentType.CSV, self.buffer)
