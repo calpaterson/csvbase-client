@@ -1,13 +1,11 @@
 import io
-from typing import Dict, Optional, List, IO
+from typing import Dict, Optional, IO
 import shutil
 from logging import getLogger
-import contextlib
 from urllib.parse import urljoin
-from pathlib import Path
 
 import requests
-from pyappcache.keys import BaseKey, Key
+from pyappcache.keys import Key
 from pyappcache.fs import FilesystemCache
 from fsspec.spec import AbstractFileSystem, AbstractBufferedFile
 
@@ -16,7 +14,6 @@ from .internals.cache import get_fs_cache, get_last_etag, set_etag, RepKey
 from .internals.value_objs import Auth, ContentType
 from .internals.auth import get_auth
 from .internals.http import get_http_sesh
-from .internals.dirs import dirs
 from .constants import CSVBASE_DOT_COM
 
 logger = getLogger(__name__)

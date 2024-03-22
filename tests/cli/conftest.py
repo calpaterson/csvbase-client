@@ -1,22 +1,13 @@
-from unittest.mock import patch
 from io import BytesIO
 
-import requests
 from requests.auth import HTTPBasicAuth
 import pandas as pd
 from csvbase.streams import rewind
-from csvbase.config import get_config
-from csvbase.svc import create_user
-from csvbase.web.app import init_app
-from passlib.context import CryptContext
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
 from click.testing import CliRunner
 import pytest
 
 from ..utils import random_string
 from .utils import format_response_error
-from ..value_objs import ExtendedUser
 
 
 @pytest.fixture(scope="session")

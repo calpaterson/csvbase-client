@@ -1,16 +1,12 @@
 import shutil
-import io
 import sys
 from logging import DEBUG, basicConfig, WARNING
 from typing import IO
-import csv
 
 import fsspec
-import toml
 import click
 
-from .auth import get_auth
-from .config import get_config, write_config, config_path
+from .config import config_path
 from .version import get_version
 from .cache import cache_path
 

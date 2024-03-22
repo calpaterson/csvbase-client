@@ -1,5 +1,7 @@
 from unittest.mock import patch
-import random, string, contextlib
+import random
+import string
+import contextlib
 
 from csvbase_client.internals.value_objs import Auth
 from csvbase_client.internals import auth as auth_module
