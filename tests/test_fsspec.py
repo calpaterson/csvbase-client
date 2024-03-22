@@ -53,11 +53,19 @@ def test_open__cache_hit(test_user, http_sesh, flask_adapter):
         "csvbase_row_id"
     )
 
-    # FIXME: this doesn't assert that the cache was used
+    # check that the data is as expected
     assert_frame_equal(expected_df, actual_df)
+
+    # check that a cache was used
     second_req, second_resp = flask_adapter.request_response_pairs[1]
     third_req, third_resp = flask_adapter.request_response_pairs[2]
     etag = second_resp.headers["ETag"]
     assert third_req.headers["If-None-Match"] == etag
     assert "ETag" not in third_resp
     third_resp.status_code == 304
+
+    # check that the layout of the cache is as expected
+    cache_path = fs._cache.directory / f"v0_{test_user.username}_{table_name}.csv"
+    assert cache_path.exists()
+    cached_df = pd.read_csv(cache_path, index_col=0)
+    assert_frame_equal(expected_df, cached_df)

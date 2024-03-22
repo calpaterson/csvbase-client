@@ -4,6 +4,7 @@ from contextlib import closing
 
 from pyappcache.keys import BaseKey
 from pyappcache.fs import FilesystemCache
+from pyappcache.serialisation import BinaryFileSerialiser
 
 from .dirs import dirs
 from .value_objs import ContentType
@@ -44,12 +45,14 @@ class RepKey(BaseKey):
         segs = []
         if self.base_url != CSVBASE_DOT_COM:
             segs.append(self.base_url)
-        segs.extend([self.ref, self.content_type.file_extension()])
+        segs.extend([self.ref + self.content_type.file_extension()])
         return segs
 
 
 def get_fs_cache(path: Optional[Path] = None) -> FilesystemCache:
     fs_cache = FilesystemCache(path or Path(dirs.user_cache_dir))
+    fs_cache.prefix = "v0"
+    fs_cache.serialiser = BinaryFileSerialiser()
     ensure_etag_table(fs_cache)
     return fs_cache
 
@@ -80,6 +83,7 @@ def set_etag(
 ) -> None:
     with closing(cache.metadata_conn.cursor()) as cursor:
         cursor.execute(SET_ETAG_DML2, (base_url, ref, content_type.mimetype(), etag))
+        cache.metadata_conn.commit()
 
 
 ## old code:

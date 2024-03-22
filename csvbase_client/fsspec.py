@@ -40,7 +40,7 @@ def get_rep(
     if etag is not None:
         rep = cache.get(rep_key)
         if rep is not None:
-            logger.debug("cache HIT: '%s'", ref)
+            logger.debug("last known etag found: '%s' ('%s')", ref, etag)
             headers["If-None-Match"] = etag
         else:
             logger.debug("an etag is known but cache MISS: '%s'", ref)

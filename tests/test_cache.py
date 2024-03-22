@@ -4,6 +4,7 @@ from io import BytesIO
 from csvbase_client.constants import CSVBASE_DOT_COM
 from csvbase_client.internals.cache import get_fs_cache, RepKey
 from csvbase_client.internals.value_objs import ContentType
+from csvbase_client.io import rewind
 
 
 def test_fs_cache__getting_and_setting(tmpdir):
@@ -16,7 +17,8 @@ def test_fs_cache__getting_and_setting(tmpdir):
     assert cache.get(key) is None
 
     # now set
-    cache.set(key, filelike)
+    with rewind(filelike):
+        cache.set(key, filelike)
 
     # check file is present where expected
 
