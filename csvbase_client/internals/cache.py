@@ -49,8 +49,13 @@ class RepKey(BaseKey):
         return segs
 
 
+def cache_path() -> Path:
+    return Path(dirs.user_cache_dir)
+
+
 def get_fs_cache(path: Optional[Path] = None) -> FilesystemCache:
-    fs_cache = FilesystemCache(path or Path(dirs.user_cache_dir))
+    fs_cache = FilesystemCache(path or cache_path())
+    # FIXME: this prefix should go at some point
     fs_cache.prefix = "v0"
     fs_cache.serialiser = BinaryFileSerialiser()
     ensure_etag_table(fs_cache)
@@ -161,10 +166,6 @@ def set_etag(
 #     def should_compress(self, python_obj, as_bytes) -> bool:
 #         # csv files are highly compressible
 #         return True
-
-
-# def cache_path() -> Path:
-#     return Path(dirs.user_cache_dir) / "cache.db"
 
 
 # class TableCache:

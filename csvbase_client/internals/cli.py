@@ -12,6 +12,7 @@ import click
 from .auth import get_auth
 from .config import get_config, write_config, config_path
 from .version import get_version
+from .cache import cache_path
 
 
 @click.group("csvbase-client")
@@ -30,13 +31,13 @@ def cli(verbose: bool):
 def table(): ...
 
 
-# @cli.command()
-# def info():
-#     """Show the configuration file location, and the contents"""
-#     exist_str = "" if config_path().exists() else " (does not exist)"
-#     click.echo(f"config path: {config_path()}{exist_str}")
-#     exist_str = "" if cache_path().exists() else " (does not exist)"
-#     click.echo(f"config path: {cache_path()}{exist_str}")
+@cli.command()
+def info():
+    """Show the configuration file location, and the contents"""
+    exist_str = "" if config_path().exists() else " (does not exist)"
+    click.echo(f"config path: {config_path()}{exist_str}")
+    exist_str = "" if cache_path().exists() else " (does not exist)"
+    click.echo(f"config path: {cache_path()}{exist_str}")
 
 
 @cli.group(help="Manage the local cache")
