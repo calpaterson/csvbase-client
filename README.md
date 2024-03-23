@@ -4,7 +4,7 @@
 
 # csvbase-client
 
-The command line client for [csvbase](https://csvbase.com/).
+The command line client and pandas integration for [csvbase](https://csvbase.com/).
 
 ## Status
 
@@ -16,13 +16,32 @@ Semantic versioning is followed, see the [changelog](CHANGELOG.md).
 
 ### Get a table
 
+In pandas:
+
+```python
+>>> import pandas as pd
+>>>  pd.read_csv("csvbase://meripaterson/stock-exchanges")
+>>> pd.read_csv("csvbase://meripaterson/stock-exchanges")
+     csvbase_row_id      Continent                   Country                                     Name   MIC Last changed
+0                 1         Africa                   Lesotho                                    HYBSE   NaN   2019-03-25
+1                 2           Asia                Kazakhstan    Astana International Financial Centre  AIXK   2018-11-18
+2                 3         Africa              South Africa                                    ZAR X  ZARX   2018-11-18
+3                 4  South America                 Argentina             Bolsas y Mercados Argentinos   NaN   2018-04-02
+4                 5  North America  United States of America                  Delaware Board of Trade   NaN   2018-04-02
+..              ...            ...                       ...                                      ...   ...          ...
+246             247  North America  United States of America                 Long-Term Stock Exchange  LTSE   2020-09-14
+247             248  North America  United States of America  Miami International Securities Exchange  MIHI   2020-09-24
+248             249  North America  United States of America                        Members' Exchange   NaN   2020-09-24
+249             250         Africa                  Zimbabwe            Victoria Falls Stock Exchange   NaN   2020-11-01
+250             251           Asia                     China                   Beijing Stock Exchange   NaN   2021-12-27
+
+[251 rows x 6 columns]
+```
+
+From the command line
+
 ```bash
 csvbase-client table get meripaterson/stock-exchanges
-```
-
-Outputs CSV to stdout:
-
-```
 csvbase_row_id,Continent,Country,Name,MIC,Last changed
 1,Africa,Lesotho,HYBSE,,2019-03-25
 2,Asia,Kazakhstan,Astana International Financial Centre,AIXK,2018-11-18
