@@ -44,7 +44,7 @@ setup(
     install_requires=[
         "click",
         "platformdirs",
-        "pyappcache",
+        "pyappcache>0.9.1",
         "requests",
         "toml",
         "importlib_resources; python_version<'3.9'",
