@@ -24,4 +24,4 @@ def test_fs_cache__getting_and_setting(tmpdir):
 
     # assert that i can get it
     actual = cache.get(key)
-    assert cache.get(key).read() == filelike.read()
+    assert actual.read() == filelike.read()

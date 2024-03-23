@@ -49,6 +49,7 @@ setup(
         "toml",
         "importlib_resources; python_version<'3.9'",
         "fsspec",
+        "rich",
     ],
     classifiers=[
         "Development Status :: 3 - Alpha",

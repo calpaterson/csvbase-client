@@ -1,4 +1,5 @@
 from unittest.mock import patch
+from pathlib import Path
 
 import requests
 from csvbase.config import get_config
@@ -9,7 +10,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 import pytest
 
-from csvbase_client.internals import http
+from csvbase_client.internals import http, cache
 
 from .utils import random_string
 from .value_objs import ExtendedUser
@@ -79,3 +80,10 @@ def http_sesh(flask_adapter):
     with patch.object(http, "_get_http_sesh") as mock_get_sesh:
         mock_get_sesh.return_value = sesh
         yield sesh
+
+
+@pytest.fixture(autouse=True)
+def mock_cache(tmpdir):
+    with patch.object(cache, "cache_path") as mocked_cache_path:
+        mocked_cache_path.return_value = Path(str(tmpdir / "cache"))
+        yield

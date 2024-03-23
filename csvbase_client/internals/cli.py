@@ -5,10 +5,12 @@ from typing import IO
 
 import fsspec
 import click
+from rich.console import Console as RichConsole
+from rich.table import Table as RichTable
 
 from .config import config_path
 from .version import get_version
-from .cache import cache_path
+from .cache import cache_path, get_fs_cache
 
 
 @click.group("csvbase-client")
@@ -33,7 +35,7 @@ def info():
     exist_str = "" if config_path().exists() else " (does not exist)"
     click.echo(f"config path: {config_path()}{exist_str}")
     exist_str = "" if cache_path().exists() else " (does not exist)"
-    click.echo(f"config path: {cache_path()}{exist_str}")
+    click.echo(f"cache path: {cache_path()}{exist_str}")
 
 
 @cli.group(help="Manage the local cache")
@@ -69,10 +71,23 @@ def cache(): ...
 #         tsv_writer.writerow([a, last_modified, content_type.mimetype(), etag_prefix])
 
 
-# @cache.command("clear", help="Wipe the cache")
-# def clear():
-#     table_cache = TableCache(get_config())
-#     table_cache.clear()
+@cache.command("show", help="Show cache location and contents")
+def cache_show():
+    table = RichTable(
+        title="csvbase-client cache", caption=f"Cache path: {cache_path()}"
+    )
+    table.add_column("Ref")
+    table.add_column("Last-Modified (server-side)")
+    table.add_column("ETag prefix")
+
+    console = RichConsole()
+    console.print(table)
+
+
+@cache.command("clear", help="Wipe the cache")
+def clear():
+    fs_cache = get_fs_cache()
+    fs_cache.clear()
 
 
 # @cli.command()
