@@ -13,7 +13,7 @@ from .io import rewind
 from .internals.cache import get_fs_cache, get_last_etag, set_etag, RepKey
 from .internals.value_objs import Auth, ContentType
 from .internals.auth import get_auth
-from .internals.http import get_http_sesh
+from .internals.http import get_http_sesh, HTTP_TIMEOUT
 from .constants import CSVBASE_DOT_COM
 
 logger = getLogger(__name__)
@@ -44,7 +44,7 @@ def get_rep(
     else:
         logger.debug("no etag known")
 
-    response = http_sesh.get(url, headers=headers, stream=True)
+    response = http_sesh.get(url, headers=headers, stream=True, timeout=HTTP_TIMEOUT)
     logger.info("got response code: %d", response.status_code)
 
     if response.status_code >= 400:
@@ -81,7 +81,7 @@ def send_rep(
     if auth is not None:
         headers["Authorization"] = auth.as_basic_auth()
     url = url_for_rep(base_url, ref, content_type)
-    response = http_sesh.put(url, data=rep, headers=headers)
+    response = http_sesh.put(url, data=rep, headers=headers, timeout=HTTP_TIMEOUT)
     response.raise_for_status()
 
 

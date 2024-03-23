@@ -1,6 +1,8 @@
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Iterator
 from contextlib import closing
+from dataclasses import dataclass
+from datetime import datetime
 
 from pyappcache.keys import BaseKey
 from pyappcache.fs import FilesystemCache
@@ -32,6 +34,23 @@ SELECT etag FROM etags
 WHERE base_url = ?
 AND ref = ?
 AND content_type = ?;
+"""
+
+GET_CACHE_ENTRIES_DQL = """
+SELECT
+    e.base_url,
+    e.ref,
+    e.content_type,
+    e.etag,
+    p.last_read,
+    p.size
+FROM
+    etags AS e
+    LEFT JOIN pyappcache AS p ON p.key = CASE WHEN base_url = 'https://csvbase.com' THEN
+        'v0/' || e.ref || '.csv'
+    ELSE
+        'v0/' || e.base_url || e.ref || '.csv'
+    END;
 """
 
 
@@ -89,6 +108,41 @@ def set_etag(
     with closing(cache.metadata_conn.cursor()) as cursor:
         cursor.execute(SET_ETAG_DML2, (base_url, ref, content_type.mimetype(), etag))
         cache.metadata_conn.commit()
+
+
+@dataclass
+class CacheEntry:
+    """Value object for cache_contents"""
+
+    base_url: str
+    ref: str
+    content_type: ContentType
+    etag: str
+    last_read: datetime
+    size_bytes: int
+
+    def etag_prefix(self) -> str:
+        """Return a short prefix of the etag (minus the w/ bit) in order to
+        make it legible in the UI.
+
+        """
+        return self.etag[4:14]
+
+
+def cache_contents(fs_cache: FilesystemCache) -> Iterator[CacheEntry]:
+    """Returns metadata on each cache entry"""
+    with closing(fs_cache.metadata_conn.cursor()) as cursor:
+        cursor.execute(GET_CACHE_ENTRIES_DQL)
+        while (row := cursor.fetchone()) is not None:
+            ce = CacheEntry(
+                base_url=row[0],
+                ref=row[1],
+                content_type=ContentType.from_mimetype(row[2]),
+                etag=row[3],
+                last_read=datetime.fromisoformat(row[4]),
+                size_bytes=row[5],
+            )
+            yield ce
 
 
 ## old code:

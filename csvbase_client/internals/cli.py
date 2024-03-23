@@ -3,6 +3,7 @@ import sys
 from logging import DEBUG, basicConfig, WARNING
 from typing import IO
 
+import humanize
 import fsspec
 import click
 from rich.console import Console as RichConsole
@@ -10,7 +11,7 @@ from rich.table import Table as RichTable
 
 from .config import config_path
 from .version import get_version
-from .cache import cache_path, get_fs_cache
+from .cache import cache_path, get_fs_cache, cache_contents
 
 
 @click.group("csvbase-client")
@@ -42,50 +43,31 @@ def info():
 def cache(): ...
 
 
-# @cache.command("show", help="Show cache location and contents")
-# @click.option(
-#     "--full-urls",
-#     default=False,
-#     is_flag=True,
-#     help="Show full urls (hint: some terminals make them clickable)",
-# )
-# def cache_show(full_urls: bool):
-#     table_cache = TableCache(get_config())
-#     tsv_writer = csv.writer(sys.stdout, dialect="excel-tab")
-#     common_cols = ["last_modified", "content_type", "etag (prefix)"]
-#     if full_urls:
-#         header = ["url"]
-#     else:
-#         header = ["ref"]
-#     header.extend(common_cols)
-#     tsv_writer.writerow(header)
-
-#     prefix_length = len(table_cache.base_url())
-#     for url, etag, content_type, last_modified in table_cache.entries():
-#         # FIXME: not quite a ref - includes file extension
-#         if full_urls:
-#             a = url
-#         else:
-#             a = url[prefix_length:]
-#         etag_prefix = etag[3:13]
-#         tsv_writer.writerow([a, last_modified, content_type.mimetype(), etag_prefix])
-
-
 @cache.command("show", help="Show cache location and contents")
-def cache_show():
+def cache_show() -> None:
     table = RichTable(
         title="csvbase-client cache", caption=f"Cache path: {cache_path()}"
     )
     table.add_column("Ref")
-    table.add_column("Last-Modified (server-side)")
     table.add_column("ETag prefix")
+    table.add_column("Last read")
+    table.add_column("Size")
+
+    for ce in cache_contents(get_fs_cache()):
+        # for now, only some of the CacheEntry data is surfaced
+        table.add_row(
+            ce.ref,
+            ce.etag_prefix(),
+            humanize.naturaltime(ce.last_read),
+            humanize.naturalsize(ce.size_bytes, gnu=True),
+        )
 
     console = RichConsole()
     console.print(table)
 
 
 @cache.command("clear", help="Wipe the cache")
-def clear():
+def clear() -> None:
     fs_cache = get_fs_cache()
     fs_cache.clear()
 

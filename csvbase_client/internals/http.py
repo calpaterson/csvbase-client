@@ -3,6 +3,10 @@ import requests
 
 from .value_objs import ContentType
 
+# Wait 5 secs to connect, 60s to read.  Sadly no way to set this on
+# requests.Session objects
+HTTP_TIMEOUT = (5, 60)
+
 
 def _get_http_sesh() -> requests.Session:
     """This internal function exists only for testing/mocking reasons."""

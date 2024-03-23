@@ -50,6 +50,7 @@ setup(
         "importlib_resources; python_version<'3.9'",
         "fsspec",
         "rich",
+        "humanize",
     ],
     classifiers=[
         "Development Status :: 3 - Alpha",
