@@ -1,0 +1,13 @@
+black
+bpython
+git+https://github.com/calpaterson/csvbase
+mypy
+pandas
+pandas-stubs
+pyarrow
+pytest
+ruff
+types-passlib
+types-requests
+types-setuptools
+types-toml
