@@ -30,3 +30,21 @@ def test_table(test_user, http_sesh) -> str:
     )
     assert resp.status_code == 201, format_response_error(resp)
     return "/".join([test_user.username, table_name])
+
+
+@pytest.fixture()
+def test_public_table(test_user, http_sesh) -> str:
+    table_name = random_string(prefix="cli-test-table-", n=10)
+    df = pd.DataFrame({"a": [1, 2, 3]})
+    buf = BytesIO()
+    with rewind(buf):
+        df.to_csv(buf)
+    resp = http_sesh.put(
+        f"https://csvbase.com/{test_user.username}/{table_name}",
+        params={"public": "true"},
+        data=buf,
+        headers={"Content-Type": "text/csv"},
+        auth=HTTPBasicAuth(test_user.username, test_user.hex_api_key()),
+    )
+    assert resp.status_code == 201, format_response_error(resp)
+    return "/".join([test_user.username, table_name])

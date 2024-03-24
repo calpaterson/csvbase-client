@@ -10,7 +10,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 import pytest
 
-from csvbase_client.internals import http, cache
+from csvbase_client.internals import http, cache, auth
 
 from .utils import random_string
 from .value_objs import ExtendedUser
@@ -86,4 +86,15 @@ def http_sesh(flask_adapter):
 def mock_cache(tmpdir):
     with patch.object(cache, "cache_path") as mocked_cache_path:
         mocked_cache_path.return_value = Path(str(tmpdir / "cache"))
+        yield
+
+
+@pytest.fixture(autouse=True)
+def disable_auth_by_default():
+    """Disable auth by default.
+
+    This ensures that any mocked setup is explicit (via mock_auth) and not
+    accidentally falling back to the system .netrc.
+    """
+    with patch.object(auth, "_get_auth", return_value=None):
         yield

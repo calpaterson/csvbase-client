@@ -1,8 +1,9 @@
 import fsspec
 import pandas as pd
-
+import pytest
 
 from pandas.testing import assert_frame_equal
+from csvbase_client.exceptions import CSVBaseException
 
 from .utils import random_string, mock_auth
 
@@ -68,3 +69,11 @@ def test_open__cache_hit(test_user, http_sesh, flask_adapter):
     assert cache_path.exists()
     cached_df = pd.read_csv(cache_path, index_col=0)
     assert_frame_equal(expected_df, cached_df)
+
+
+def test_open__does_not_exist(test_user, http_sesh, flask_adapter):
+    fs = fsspec.filesystem("csvbase")
+    table_name = random_string(prefix="table-")
+    with pytest.raises(CSVBaseException):
+        with fs.open(f"{test_user.username}/{table_name}") as table_f:
+            pd.read_csv(table_f.read())

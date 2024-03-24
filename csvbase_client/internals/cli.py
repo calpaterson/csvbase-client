@@ -12,6 +12,7 @@ from rich.table import Table as RichTable
 from .config import config_path
 from .version import get_version
 from .cache import cache_path, get_fs_cache, cache_contents
+from ..exceptions import CSVBaseException
 
 
 @click.group("csvbase-client")
@@ -109,7 +110,12 @@ def clear() -> None:
 )
 def get(ref: str, force_cache_miss: bool):
     fs = fsspec.filesystem("csvbase")
-    table_buf = fs.open(ref, "r")
+    try:
+        table_buf = fs.open(ref, "r")
+    except CSVBaseException as e:
+        error_console = RichConsole(stderr=True, style="bold red")
+        error_console.print(str(e))
+        sys.exit(1)
     shutil.copyfileobj(table_buf, sys.stdout)
 
 

@@ -2,7 +2,13 @@ import os
 from unittest.mock import patch
 
 
-from csvbase_client.internals.auth import get_auth
+from csvbase_client.internals.auth import _get_auth
+
+
+def get_auth(host="csvbase.com"):
+    # this is to work around the default mocking of _get_auth - _get_auth is
+    # import here prior to the mocking time
+    return _get_auth(host)
 
 
 def test_netrc(tmpdir):

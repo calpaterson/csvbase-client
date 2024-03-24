@@ -11,11 +11,30 @@ import pytest
 from ..utils import random_string, mock_auth
 
 
-def test_get__happy(runner, test_user, test_table):
+def test_get__while_anonymous(runner, test_user, test_public_table):
+    """Test getting a table."""
+    result = runner.invoke(cli, ["table", "get", test_public_table])
+    assert result.exit_code == 0, result.stderr_bytes
+
+
+def test_get__while_authed(runner, test_user, test_table):
     """Test getting a table."""
     with mock_auth(test_user.username, test_user.hex_api_key()):
         result = runner.invoke(cli, ["table", "get", test_table])
     assert result.exit_code == 0, result.stderr_bytes
+
+
+def test_get__table_does_not_exist(runner, test_user):
+    result = runner.invoke(cli, ["table", "get", f"{test_user}/fake"])
+    assert result.exit_code == 1, result.stderr_bytes
+    assert result.stdout == "foobar"
+
+
+@pytest.mark.xfail(reason="not implemented")
+def test_get__user_does_not_exist(runner, test_user):
+    result = runner.invoke(cli, ["table", "get", f"{test_user}/fake"])
+    assert result.exit_code == 1, result.stderr_bytes
+    assert result.stdout == "foobar"
 
 
 def test_set__to_create(runner, test_user, tmpdir):

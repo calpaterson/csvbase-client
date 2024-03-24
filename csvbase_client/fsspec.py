@@ -15,6 +15,7 @@ from .internals.value_objs import Auth, ContentType
 from .internals.auth import get_auth
 from .internals.http import get_http_sesh, HTTP_TIMEOUT
 from .constants import CSVBASE_DOT_COM
+from .exceptions import http_error_to_user_message, CSVBaseException
 
 logger = getLogger(__name__)
 
@@ -30,6 +31,7 @@ def get_rep(
     headers = {"Accept": "text/csv"}
     if auth is not None:
         headers["Authorization"] = auth.as_basic_auth()
+    # breakpoint()
     url = url_for_rep(base_url, ref, content_type)
     etag = get_last_etag(cache, base_url, ref, content_type)
     rep_key: Key[IO[bytes]] = RepKey(base_url, ref, content_type)
@@ -47,10 +49,14 @@ def get_rep(
     response = http_sesh.get(url, headers=headers, stream=True, timeout=HTTP_TIMEOUT)
     logger.info("got response code: %d", response.status_code)
 
-    if response.status_code >= 400:
+    # make sure to log all 500s to make it clear a real error has occurred
+    if response.status_code >= 500:
         logger.error("got status_code: %d, %s", response.status_code, response.content)
 
-        response.raise_for_status()
+    # 400s and 500s are raised as exceptions
+    if response.status_code >= 400:
+        message = http_error_to_user_message(ref, response)
+        raise CSVBaseException(message)
 
     if response.status_code == 304:
         # FIXME: a rejig is required here for type safety
