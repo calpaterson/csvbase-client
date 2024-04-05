@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import List, Optional, Iterator
 from contextlib import closing
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 
 from pyappcache.keys import BaseKey
 from pyappcache.fs import FilesystemCache
@@ -139,7 +139,7 @@ def cache_contents(fs_cache: FilesystemCache) -> Iterator[CacheEntry]:
                 ref=row[1],
                 content_type=ContentType.from_mimetype(row[2]),
                 etag=row[3],
-                last_read=datetime.fromisoformat(row[4]),
+                last_read=datetime.fromisoformat(row[4]).replace(tzinfo=timezone.utc),
                 size_bytes=row[5],
             )
             yield ce
