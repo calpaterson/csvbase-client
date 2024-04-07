@@ -189,6 +189,10 @@ class CSVBaseFile(AbstractBufferedFile):
                 size = self._staging_buffer.tell()
         else:
             size = 0
+
+        # currently this value is used only for test multi-chunk uploads
+        self._chunk_count = 0
+
         super().__init__(fs, path, mode, size=size, cache_type="none", **kwargs)
 
     def _fetch_range(self, start: int, end: int) -> bytes:
@@ -202,6 +206,9 @@ class CSVBaseFile(AbstractBufferedFile):
 
     def _upload_chunk(self, final=False) -> None:
         # we send it all in one go at the moment
+        self.buffer.seek(0)
+        shutil.copyfileobj(self.buffer, self._staging_buffer)
+        self._chunk_count += 1
         if final:
-            self.buffer.seek(0)
-            self.fs._send_rep(self.path, ContentType.CSV, self.buffer)
+            self._staging_buffer.seek(0)
+            self.fs._send_rep(self.path, ContentType.CSV, self._staging_buffer)
