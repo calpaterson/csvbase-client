@@ -140,9 +140,13 @@ class CSVBaseFileSystem(AbstractFileSystem):
         raise NotImplementedError
 
     def info(self, path: str) -> Dict:
+        # FIXME: implement a proper HEAD method for csvbase, avoid fetching the
+        # whole file: https://github.com/calpaterson/csvbase/issues/71
+        with self.open(path, "rb") as table_f:
+            size = table_f.size
         return {
             "name": path,
-            "size": None,
+            "size": size,
             "type": "file" if "/" in path else "directory",
         }
 

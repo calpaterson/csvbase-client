@@ -1,9 +1,11 @@
 black
 bpython
+dask[dataframe]
 git+https://github.com/calpaterson/csvbase
 mypy
 pandas
 pandas-stubs
+polars
 pyarrow
 pytest
 ruff

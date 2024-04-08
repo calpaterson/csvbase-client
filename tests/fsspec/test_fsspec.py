@@ -1,3 +1,5 @@
+"""These tests are for working with the fsspec layer directly."""
+
 import fsspec
 import pandas as pd
 import pytest
@@ -9,12 +11,12 @@ from pandas.testing import assert_frame_equal
 from csvbase_client.exceptions import CSVBaseException
 
 from csvbase_client.io import rewind
-from .utils import random_string, mock_auth, random_dataframe
+from ..utils import random_string, mock_auth, random_dataframe
 
 
-def test_open__happy(test_user, http_sesh):
+def test_fsspec__happy(test_user, http_sesh):
     table_name = random_string(prefix="table-")
-    initial_df = pd.DataFrame({"string": [f"Hello, {n}" for n in range(10)]})
+    initial_df = random_dataframe()
 
     with mock_auth(test_user.username, test_user.hex_api_key()):
         fs = fsspec.filesystem("csvbase")
@@ -34,7 +36,7 @@ def test_open__happy(test_user, http_sesh):
     assert_frame_equal(expected_df, actual_df)
 
 
-def test_open__cache_hit(test_user, http_sesh, flask_adapter):
+def test_fsspec__cache_hit(test_user, http_sesh, flask_adapter):
     table_name = random_string(prefix="table-")
     initial_df = pd.DataFrame({"string": [f"Hello, {n}" for n in range(10)]})
 
@@ -74,7 +76,7 @@ def test_open__cache_hit(test_user, http_sesh, flask_adapter):
     assert_frame_equal(expected_df, cached_df)
 
 
-def test_open__does_not_exist(test_user, http_sesh, flask_adapter):
+def test_fsspec__read_but_does_not_exist(test_user, http_sesh, flask_adapter):
     fs = fsspec.filesystem("csvbase")
     table_name = random_string(prefix="table-")
     with pytest.raises(CSVBaseException):

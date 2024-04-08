@@ -21,7 +21,7 @@ def mock_auth(username: str, hex_api_key: str):
         yield
 
 
-def random_dataframe(row_count=100) -> pd.DataFrame:
+def random_dataframe(row_count=10) -> pd.DataFrame:
     rng = np.random.default_rng()
     df = pd.DataFrame(rng.integers(0, 100, size=(row_count, 4)), columns=list("ABCD"))
     return df
