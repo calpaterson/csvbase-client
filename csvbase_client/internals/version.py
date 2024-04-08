@@ -1,4 +1,4 @@
-import importlib.resources as imp_resources
+import importlib_resources as imp_resources
 
 import csvbase_client
 
@@ -18,8 +18,6 @@ def get_softcoded_version() -> str:
     This only works if we're in a valid package, with the valid package data.
 
     """
-    # this isn't there in 3.8, which gets mypy confused (but we are using a
-    # backport)
     version_path = imp_resources.files(csvbase_client) / "VERSION"  # type: ignore
     return version_path.open().read().strip()
 
