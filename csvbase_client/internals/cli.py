@@ -71,6 +71,9 @@ def cache_show() -> None:
 def clear() -> None:
     fs_cache = get_fs_cache()
     fs_cache.clear()
+    # FIXME: it should be pyappcache that does this:
+    for path in fs_cache.directory.glob("*.csv"):
+        path.unlink()
 
 
 # @cli.command()
