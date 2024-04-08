@@ -27,7 +27,7 @@ def test_get__while_authed(runner, test_user, test_table):
 def test_get__table_does_not_exist(runner, test_user):
     result = runner.invoke(cli, ["table", "get", f"{test_user}/fake"])
     assert result.exit_code == 1, result.stderr_bytes
-    assert result.stdout == "foobar"
+    assert "Table not found" in result.stdout
 
 
 @pytest.mark.xfail(reason="not implemented")
