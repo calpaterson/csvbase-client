@@ -19,7 +19,7 @@ def create_table(user, table_name: str, df: dd.DataFrame) -> None:
             df.compute().to_csv(table_f, index=False)
 
 
-@pytest.mark.xfail(reasons="seems to require CSVBaseFileSystem to be thread safe")
+@pytest.mark.xfail(reason="seems to require CSVBaseFileSystem to be thread safe")
 def test_dask__read_happy(test_user):
     original_df = random_dask_dataframe()
     table_name = random_string()
