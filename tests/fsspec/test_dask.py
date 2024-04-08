@@ -19,14 +19,16 @@ def create_table(user, table_name: str, df: dd.DataFrame) -> None:
             df.compute().to_csv(table_f, index=False)
 
 
-@pytest.mark.xfail(reason="seems to require CSVBaseFileSystem to be thread safe")
-def test_dask__read_happy(test_user):
+@pytest.mark.xfail(reason="dask does not get on with our flask injection stuff")
+def test_dask__read_happy(test_user, flask_adapter):
     original_df = random_dask_dataframe()
     table_name = random_string()
     create_table(test_user, table_name, original_df)
 
     expected_df = original_df.set_index("A").compute()
-    actual_df = dd.read_csv(f"csvbase://{test_user.username}/{table_name}").set_index(
-        "A"
+    actual_df = (
+        dd.read_csv(f"csvbase://{test_user.username}/{table_name}")
+        .set_index("A")
+        .compute()
     )
-    assert_frame_equal(expected_df.compute(), actual_df.compute())
+    assert_frame_equal(expected_df, actual_df)

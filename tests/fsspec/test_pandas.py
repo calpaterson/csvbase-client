@@ -13,7 +13,7 @@ def create_table(user, table_name: str, df: pd.DataFrame) -> None:
             df.to_csv(table_f, index=False)
 
 
-def test_pandas__read_happy(test_user):
+def test_pandas__read_happy(test_user, flask_adapter):
     """Read a CSV via pd.read_csv(csvbase://[...])"""
     original_df = random_dataframe()
     table_name = random_string()

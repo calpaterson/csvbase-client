@@ -18,7 +18,7 @@ def create_table(user, table_name: str, df: pl.DataFrame) -> None:
             df.write_csv(table_f)
 
 
-def test_polars__read_happy(test_user):
+def test_polars__read_happy(test_user, flask_adapter):
     """Read a CSV via pl.read_csv(csvbase://[...])"""
     original_df = random_polars_dataframe()
     table_name = random_string()

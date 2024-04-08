@@ -70,7 +70,8 @@ def test_fsspec__cache_hit(test_user, http_sesh, flask_adapter):
     third_resp.status_code == 304
 
     # check that the layout of the cache is as expected
-    cache_path = fs._cache.directory / f"v0_{test_user.username}_{table_name}.csv"
+    with fs._get_fs_cache() as cache:
+        cache_path = cache.directory / f"v0_{test_user.username}_{table_name}.csv"
     assert cache_path.exists()
     cached_df = pd.read_csv(cache_path, index_col=0)
     assert_frame_equal(expected_df, cached_df)

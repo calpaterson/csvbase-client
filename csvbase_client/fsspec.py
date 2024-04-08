@@ -1,8 +1,10 @@
 import io
-from typing import Dict, Optional, IO
+from typing import Dict, Optional, IO, Iterator
 import shutil
 from logging import getLogger
 from urllib.parse import urljoin
+from threading import Lock
+import contextlib
 
 import requests
 from pyappcache.keys import Key
@@ -100,7 +102,7 @@ class CSVBaseFileSystem(AbstractFileSystem):
     def __init__(self, *args, **kwargs):
         kwargs["use_listings_cache"] = False
         self._base_url = CSVBASE_DOT_COM
-        self._cache = get_fs_cache()
+        self._cache_lock = Lock()
 
         super().__init__(*args, **kwargs)
 
@@ -152,31 +154,41 @@ class CSVBaseFileSystem(AbstractFileSystem):
 
     def _get_rep(self, ref: str, content_type: ContentType) -> IO[bytes]:
         _http_sesh = get_http_sesh()
-        return get_rep(
-            _http_sesh,
-            self._cache,
-            self._base_url,
-            ref,
-            content_type,
-            self._get_auth(),
-        )
+        with self._get_fs_cache() as cache:
+            return get_rep(
+                _http_sesh,
+                cache,
+                self._base_url,
+                ref,
+                content_type,
+                self._get_auth(),
+            )
 
     def _send_rep(self, ref: str, content_type: ContentType, rep: IO[bytes]) -> None:
         _http_sesh = get_http_sesh()
-        send_rep(
-            _http_sesh,
-            self._cache,
-            self._base_url,
-            ref,
-            content_type,
-            rep,
-            self._get_auth(),
-        )
+        with self._get_fs_cache() as cache:
+            send_rep(
+                _http_sesh,
+                cache,
+                self._base_url,
+                ref,
+                content_type,
+                rep,
+                self._get_auth(),
+            )
 
     def _get_auth(self) -> Optional[Auth]:
         # this can't be done on an instance level for testing reasons - fsspec
         # appears to re-use instances
         return get_auth()
+
+    @contextlib.contextmanager
+    def _get_fs_cache(self) -> Iterator[FilesystemCache]:
+        # Dask requires these fsspec objects to be thread safe.  However the
+        # FilesystemCache was not designed with that in mind.  As a temporary
+        # solution, lock it.
+        with self._cache_lock:
+            yield get_fs_cache()
 
 
 class CSVBaseFile(AbstractBufferedFile):
