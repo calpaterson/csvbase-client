@@ -30,4 +30,4 @@ def get_hardcoded_version() -> str:
     This is used when we're not in a valid package, for example when built by Nuitka.
 
     """
-    return "0.0.1"
+    return "0.1.0"
