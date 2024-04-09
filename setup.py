@@ -31,7 +31,7 @@ setup(
         "pyappcache>=0.10.0",
         "requests",
         "toml",
-        "importlib_resources; python_version<'3.9'",
+        "importlib_resources",
         "fsspec",
         "rich",
         "humanize",
