@@ -8,6 +8,12 @@ outside it, please consult [PUBLIC_API.md](PUBLIC_API.md). Changes that do not
 impact the public API usually will not lead to a version change and might not
 be mentioned here.
 
+## [0.1.1] - Unreleased
+
+### Added
+
+- Python 3.12 support
+
 ## [0.1.0] - 2024-04-09
 
 ### Added
