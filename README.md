@@ -10,7 +10,7 @@ The command line client and pandas integration for [csvbase](https://csvbase.com
 
 This tool is very early alpha and suitable for testing.
 
-Semantic versioning is followed, see the [changelog](CHANGELOG.md).
+Semantic versioning is followed, see the [changelog](https://github.com/calpaterson/csvbase-client/blob/main/CHANGELOG.md).
 
 ## Usage
 
@@ -20,7 +20,7 @@ In pandas:
 
 ```python
 >>> import pandas as pd
->>>  pd.read_csv("csvbase://meripaterson/stock-exchanges")
+>>> pd.read_csv("csvbase://meripaterson/stock-exchanges")
 >>> pd.read_csv("csvbase://meripaterson/stock-exchanges")
      csvbase_row_id      Continent                   Country                                     Name   MIC Last changed
 0                 1         Africa                   Lesotho                                    HYBSE   NaN   2019-03-25
