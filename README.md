@@ -8,8 +8,6 @@ The command line client and pandas integration for [csvbase](https://csvbase.com
 
 ## Status
 
-This tool is very early alpha and suitable for testing.
-
 Semantic versioning is followed, see the [changelog](https://github.com/calpaterson/csvbase-client/blob/main/CHANGELOG.md).
 
 ## Usage
