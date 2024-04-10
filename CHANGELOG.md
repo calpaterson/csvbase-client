@@ -14,6 +14,10 @@ be mentioned here.
 
 - Python 3.12 support
 
+### Fixed
+
+- Adding missing dependency on importlib_resources
+
 ## [0.1.0] - 2024-04-09
 
 ### Added
