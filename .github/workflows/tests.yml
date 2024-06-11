@@ -56,7 +56,7 @@ jobs:
       - name: Install required ubuntu packages
         run: sudo apt-get update && sudo apt-get install -y libsystemd-dev postgresql-client python3-dev
       - name: Create schemas
-        run: psql -h localhost -d csvbase -U csvbase -f init-schemas.sql
+        run: psql -h localhost -d csvbase -U csvbase -f tests/init-schemas.sql
       - name: update pip
         run: |
           pip install -U wheel
