@@ -32,8 +32,12 @@ def test_pandas__read_happy_parquet(test_user, flask_adapter):
     table_name = random_string()
     create_table(test_user, table_name, original_df)
 
-    actual_df = pd.read_parquet(
-        f"csvbase://{test_user.username}/{table_name}.parquet",
-    ).drop(columns="csvbase_row_id").set_index("A")
+    actual_df = (
+        pd.read_parquet(
+            f"csvbase://{test_user.username}/{table_name}.parquet",
+        )
+        .drop(columns="csvbase_row_id")
+        .set_index("A")
+    )
     expected_df = original_df.set_index("A")
     assert_frame_equal(expected_df, actual_df)

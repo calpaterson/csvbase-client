@@ -32,7 +32,9 @@ def test_polars__read_happy_csv(test_user, flask_adapter):
     assert_frame_equal(expected_df, actual_df)
 
 
-@pytest.mark.xfail(reason="polars bug: https://github.com/pola-rs/polars/issues/16737", strict=True)
+@pytest.mark.xfail(
+    reason="polars bug: https://github.com/pola-rs/polars/issues/16737", strict=True
+)
 def test_polars__read_happy_parquet(test_user, flask_adapter):
     original_df = random_polars_dataframe()
     table_name = random_string()
