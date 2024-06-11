@@ -5,7 +5,7 @@ from ..utils import random_dataframe, random_string, mock_auth
 
 
 def random_duckdb_table():
-    random_df = random_dataframe()
+    random_df = random_dataframe()  # noqa: F841
     table_name = random_string()
     duckdb.sql(f"CREATE TABLE {table_name} AS SELECT * FROM random_df")
     return table_name
