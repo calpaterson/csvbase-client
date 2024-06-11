@@ -1,6 +1,7 @@
 black
 bpython
 dask[dataframe]
+duckdb
 git+https://github.com/calpaterson/csvbase
 mypy
 pandas
