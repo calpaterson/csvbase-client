@@ -50,6 +50,7 @@ def test_user(db_sesh):
         api_key=user.api_key,
         email=user.email,
         timezone=user.timezone,
+        mailing_list=False,
     )
 
 
