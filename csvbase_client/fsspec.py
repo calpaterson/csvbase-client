@@ -33,7 +33,6 @@ def get_rep(
     headers = {"Accept": "text/csv"}
     if auth is not None:
         headers["Authorization"] = auth.as_basic_auth()
-    # breakpoint()
     url = url_for_rep(base_url, ref, content_type)
     etag = get_last_etag(cache, base_url, ref, content_type)
     rep_key: Key[IO[bytes]] = RepKey(base_url, ref, content_type)
