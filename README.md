@@ -19,7 +19,6 @@ In pandas:
 ```python
 >>> import pandas as pd
 >>> pd.read_csv("csvbase://meripaterson/stock-exchanges")
->>> pd.read_csv("csvbase://meripaterson/stock-exchanges")
      csvbase_row_id      Continent                   Country                                     Name   MIC Last changed
 0                 1         Africa                   Lesotho                                    HYBSE   NaN   2019-03-25
 1                 2           Asia                Kazakhstan    Astana International Financial Centre  AIXK   2018-11-18
