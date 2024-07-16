@@ -89,7 +89,13 @@ def send_rep(
         headers["Authorization"] = auth.as_basic_auth()
     url = url_for_rep(base_url, ref, content_type)
     response = http_sesh.put(url, data=rep, headers=headers, timeout=HTTP_TIMEOUT)
-    response.raise_for_status()
+
+    # FIXME: this needs bringing into line with the get_rep code
+    try:
+        response.raise_for_status()
+    except Exception:
+        logger.error("got status code %d from csvbase server, body: %s", response.status_code, response.content)
+        raise
 
 
 def url_for_rep(base_url: str, ref: str, content_type: ContentType) -> str:
